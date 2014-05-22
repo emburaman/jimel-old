@@ -1,0 +1,83 @@
+@charset "utf-8";
+/* CSS Document */
+
+ul, li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.navbar {
+	margin-top: 10px;
+}
+.mbl {
+	margin-bottom: 15px;
+}
+h1 {
+	font-weight: 100;
+	letter-spacing: -0.05em;
+	line-height: 70%;
+}
+#colorpicker {
+	background-color: #FFF;
+	border: 3px solid black;
+	display: none;
+	height: 205px;
+	padding: 2px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 205px;
+
+  -moz-box-shadow:    0 0 5px 0 #000;
+  -webkit-box-shadow: 0 0 5px 0 #000;
+  box-shadow:         0 0 5px 0 #000;
+}
+
+.right {
+	float: right;
+}
+.btn-xs {
+	margin-left: 5px;
+}
+
+.checkbox sup {
+	color: #EFEFEF;
+}
+td {
+  padding: 3px 5px;
+}
+
+.team-members {
+	width: 100%;
+}
+.team-members tr.teams {
+	background-color: #EFEFEF;
+}
+.score {
+	font-size: 40px;
+	font-weight: 900;
+}
+.team .goal {
+  padding-right: 15px;
+}
+
+.team button {
+  position: relative;
+  margin-left: 15px;
+}
+.team .total {
+  background-color: red;
+  -moz-border-radius: 20px;
+  -webkit-border-radius: 20px;
+  border-radius: 20px; /* future proofing */
+  display: block;
+  font-size: 8px;
+  font-weight: 900;
+  height: 16px;
+  line-height: 10px;
+  padding: 3px;
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  width: 16px;
+}
