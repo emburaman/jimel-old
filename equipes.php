@@ -169,9 +169,10 @@ if (empty($_POST)) {
 	include_once('connect.php');
 	$conn = new Database();
 	if ($_COOKIE['jimeluser']['profile'] < 3) {
-	  $dados = $conn->getTeams($_COOKIE['jimeluser']['association'], 2);
+	  $dados = $conn->getTeams($_COOKIE['jimeluser']['association'], 2, null);
 	} else {
-	  $dados = $conn->getTeams();
+	  //$dados = $conn->getTeams();
+	  $dados = $conn->getTeams(null, 2, null);
 	}
 	$count = $conn->rowCount();
 	?>

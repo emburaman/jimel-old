@@ -39,6 +39,7 @@
 							<ul class="dropdown-menu dropdown-inverse">
 								<li><a href="usuarios.php">Usuários</a></li>
 								<li><a href="jogos.php">Jogos</a></li>
+								<li><a href="classificacao.php">Classificação</a></li>
 								<!-- 
 								<li><a href="atletas.php">Eventos</a></li>
 								<li><a href="equipes.php">Categorias</a></li>

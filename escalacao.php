@@ -71,7 +71,7 @@ $count = $conn->rowCount();
 	$minAge = $cats[0]['min_age'];
 	$maxAge = $cats[0]['max_age'];
 	
-	$dadosa = $conna->getAvailable($dados['entity_id'], $dados['id_event'], $minAge, $maxAge);
+	$dadosa = $conna->getAvailable($dados['entity_id'], $dados['id_event'], $minAge, $maxAge, $dados['id_category']);
 	$counta = $conna->rowCount();
 	
 	if ($counta <= 0) {

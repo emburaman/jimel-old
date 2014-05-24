@@ -248,7 +248,7 @@ class Database {
 			if ($w != '') { $w .= ' AND '; }
 			$w .= " id_category = $c";
 		}
-		if ($e != null || $c != null) { $w = ' WHERE '. $w; }
+		if ($w != '') { $w = ' WHERE '. $w; }
 		$sql = 'SELECT * FROM vw_teams'. $w .' ORDER BY entity ASC, team_name ASC';
 		$this->query($sql);
 		$row = $this->resultset();
@@ -281,6 +281,14 @@ class Database {
 		$this->query('SELECT * FROM vw_teams WHERE id = :id_team');
 		$this->bind(':id_team', $t);
 		$row = $this->single();
+		return $row;
+	}
+	
+	public function getGroups($id_cat = null) {
+		$w = '';
+		if($id_cat != null) { $w .= " WHERE id_category = $id_cat"; }
+		$this->query("SELECT * FROM es_group $w");
+		$row = $this->resultset();
 		return $row;
 	}
 	
@@ -358,7 +366,7 @@ class Database {
 		return $rows;
 	}
 	
-	public function getAvailable($id_association, $id_event, $min = null, $max = null) {
+	public function getAvailable($id_association, $id_event, $min = null, $max = null, $id_cat = null) {
 		$this->query('SELECT * FROM vw_subscriptions WHERE id_association = '. $id_association .' AND id_event = '. $id_event);
 		$atls = $this->resultset();
 
@@ -368,6 +376,9 @@ class Database {
 		}
 		if ($max > 0) {
 			$w .= ' AND age <= '. $max;
+		}
+		if ($id_cat != null) {
+			$w .= ' AND id_category = '. $id_cat;
 		}
 		if ($this->rowCount() > 0) {
 			$w .= ' AND id_athlete NOT IN (';
@@ -411,7 +422,7 @@ class Database {
 	public function getGames($c = null) {
 		$w = "";
 		if ($c) {
-			$w .= " WHERE id_category = $c";
+			$w .= " WHERE id_category = $c AND id_event = 2";
 		}
 		$this->query('SELECT * FROM vw_games '. $w .' ORDER BY quadra ASC, date_time ASC');
 		$rows = $this->resultset();
@@ -426,19 +437,19 @@ class Database {
 	}
 	
 	public function updGame($arr) {
-		$this->query('UPDATE es_game SET id_team_a = :id_team_a, id_team_b = :id_team_b, date_time = :date_time, id_game_place = :id_game_place WHERE id_game = :id_game');
+		$this->query('UPDATE es_game SET id_team_a = :id_team_a, id_team_b = :id_team_b, date_time = :date_time, id_game_place = :id_game_place, id_group = :id_group WHERE id_game = :id_game');
 		$this->bind(':id_game',$arr['id_game']);
 		$this->bind(':date_time',$arr['date_time']);
 		$this->bind(':id_team_a',$arr['id_team_a']);
 		$this->bind(':id_team_b',$arr['id_team_b']);
 		$this->bind(':id_game_place',$arr['id_game_place']);
+		$this->bind(':id_group',$arr['id_group']);
 
 		$this->execute();
 		return true;
 	}
 	
 	public function delGame($id) {
-		p($id);
 		$this->query('DELETE FROM es_game WHERE id_game = '. $id);
 		$this->execute();
 	}
@@ -450,12 +461,13 @@ class Database {
 	}
 	
 	public function addGame($arr) {
-		$this->query('INSERT INTO es_game (date_time, id_event, id_team_a, id_team_b, id_game_place) VALUES (:date_time, :id_event, :id_team_a, :id_team_b, :id_game_place)');
+		$this->query('INSERT INTO es_game (date_time, id_event, id_team_a, id_team_b, id_game_place, id_group) VALUES (:date_time, :id_event, :id_team_a, :id_team_b, :id_game_place, :id_group)');
 		$this->bind(':date_time',$arr['date_time']);
 		$this->bind(':id_event', $arr['id_event']);
 		$this->bind(':id_team_a',$arr['id_team_a']);
 		$this->bind(':id_team_b',$arr['id_team_b']);
 		$this->bind(':id_game_place',$arr['id_game_place']);
+		$this->bind(':id_group',$arr['id_group']);
 
 		$this->execute();
 		return $this->lastInsertId();
@@ -468,6 +480,190 @@ class Database {
 		$this->query($sql);
 		$rows = $this->resultset();
 		$results = array();
+		return $rows;
+	}
+	
+	public function endGame($id_game, $scrA, $scrB) {
+		$this->query("UPDATE es_game SET score_a = :score_a, score_b = :score_b, is_finished = 1 WHERE id_game = :id_game");
+		$this->bind(':id_game',$id_game);
+		$this->bind(':score_a',$scrA);
+		$this->bind(':score_b',$scrB);
+		$this->execute();
+		return $this->lastInsertId();
+	}
+	
+	private function combo($arr) {
+		$count = count($arr);
+		$combo = array();
+		$id = 0;
+		
+		for ($i = 0; $i < $count; $i++) {
+			for ($x = $i+1; $x < $count; $x++) {
+				$combo[$id] = array ('Team A' => $arr[$i], 'Team B' => $arr[$x]);
+				$id++;
+			}
+		}
+		return $combo;
+	}
+	public function groupMatches($id_event, $teams, $id_group) {
+		$games = $this->combo($teams);
+		
+		for ($i = 0; $i < count($games); $i++) {
+			$teamA = $this->getTeam($games[$i]['Team A']);
+			$teamB = $this->getTeam($games[$i]['Team B']);
+			$arr = array('date_time' => '2014-08-16 08:30:00', 
+									 'id_event' => $id_event, 
+									 'id_team_a' => $teamA['id'], 
+									 'id_team_b' => $teamB['id'], 
+									 'id_game_place' => $place, 
+									 'id_group' => $id_group);
+
+			$this->addGame($arr);
+		}
+		return true;
+	}
+	
+	public function getStandings($id_cat = null, $id_group = null) {
+		$wins = 3;
+		$draws = 1;
+		$losses = 0;
+		
+		$w = "";
+		if ($id_cat != null) {
+			if ($w != '') { $w .= " AND "; }
+			$w .= "id_category = $id_cat";
+		}
+		if ($id_group != null) {
+			if ($w != '') { $w .= " AND "; }
+			$w .= "grupo = '$id_group'";
+		}
+		if ($w != '') { $w = "WHERE $w"; }
+ 		
+		$sql = "SElECT 
+								id_team,
+								id_category,
+								team_name,
+								grupo,
+								((wins * $wins) + (draws * $draws) + (losses * $losses)) AS points,
+								plays,
+								wins,
+								draws,
+								losses,
+								goals_for,
+								goals_against,
+								reds,
+								yellows,
+								fouls
+						FROM
+								(SELECT 
+										t.id AS id_team,
+												t.id_category AS id_category,
+												t.team_name AS team_name,
+												t.group AS grupo,
+												(SELECT 
+																COUNT(*)
+														FROM
+																es_game AS g1
+														WHERE
+																g1.id_group IS NOT NULL
+																		AND g1.is_finished = 1
+																		AND (g1.id_team_a = t.id
+																		OR g1.id_team_b = t.id)) AS plays,
+												(SELECT 
+																COUNT(*)
+														FROM
+																es_game AS g2
+														WHERE
+																g2.id_group IS NOT NULL
+																		AND g2.is_finished = 1
+																		AND ((g2.id_team_a = t.id
+																		AND g2.score_a > g2.score_b)
+																		OR (g2.id_team_b = t.id
+																		AND g2.score_a < g2.score_b))) AS wins,
+												(SELECT 
+																COUNT(*)
+														FROM
+																es_game AS g3
+														WHERE
+																g3.id_group IS NOT NULL
+																		AND g3.is_finished = 1
+																		AND ((g3.id_team_a = t.id
+																		AND g3.score_a = g3.score_b)
+																		OR (g3.id_team_b = t.id
+																		AND g3.score_a = g3.score_b))) AS draws,
+												(SELECT 
+																COUNT(*)
+														FROM
+																es_game AS g4
+														WHERE
+																g4.id_group IS NOT NULL
+																		AND g4.is_finished = 1
+																		AND ((g4.id_team_a = t.id
+																		AND g4.score_a < g4.score_b)
+																		OR (g4.id_team_b = t.id
+																		AND g4.score_a > g4.score_b))) AS losses,
+												COALESCE((SELECT 
+																SUM(sc1.result)
+														FROM
+																vw_score AS sc1
+														WHERE
+																sc1.id_score_type = 1
+																		AND sc1.id_team = t.id), 0) AS goals_for,
+												COALESCE((SELECT 
+																SUM(g5.score_a)
+														FROM
+																es_game AS g5
+														WHERE
+																g5.id_group IS NOT NULL
+																		AND g5.is_finished = 1
+																		AND g5.id_team_b = t.id), 0) + COALESCE((SELECT 
+																SUM(g6.score_b)
+														FROM
+																es_game AS g6
+														WHERE
+																g6.id_group IS NOT NULL
+																		AND g6.is_finished = 1
+																		AND g6.id_team_a = t.id), 0) AS goals_against,
+												COALESCE((SELECT 
+																SUM(sc3.result)
+														FROM
+																vw_score AS sc3
+														WHERE
+																sc3.id_score_type = 3
+																		AND sc3.id_team = t.id), 0) AS reds,
+												COALESCE((SELECT 
+																SUM(sc4.result)
+														FROM
+																vw_score AS sc4
+														WHERE
+																sc4.id_score_type = 4
+																		AND sc4.id_team = t.id), 0) AS yellows,
+												COALESCE((SELECT 
+																SUM(sc5.result)
+														FROM
+																vw_score AS sc5
+														WHERE
+																sc5.id_score_type = 2
+																		AND sc5.id_team = t.id), 0) AS fouls
+								FROM
+										vw_teams AS t) AS standings
+								$w 
+								ORDER BY 
+										id_category ASC , 
+										grupo ASC , 
+										points DESC , 
+										wins DESC , 
+										draws ASC , 
+										losses ASC , 
+										goals_for DESC , 
+										goals_against ASC , 
+										reds ASC , 
+										yellows ASC , 
+										fouls ASC ,
+										team_name ASC";
+
+		$this->query($sql);
+		$rows = $this->resultset();
 		return $rows;
 	}
 }

@@ -1,36 +1,9 @@
-  <?php
-  include_once('header.php');
-  include_once('connect.php');
-  
-/*
-  $arrA = array('A','B','C');
-  $arrB = array('A','B','C','D');
-  $arrC = array(39,34,14,29,26,38);
-  
-  function combo($arr) {
-    $count = count($arr);
-    $combo = array();
-    $id = 0;
-    
-    for ($i = 0; $i < $count; $i++) {
-      for ($x = $i+1; $x < $count; $x++) {
-        $combo[$id] = array ('Team A' => $arr[$i], 'Team B' => $arr[$x]);
-        $id++;
-      }
-    }
-    return $combo;
-  }
-  */
+<?php
+include_once('header.php');
+include_once('connect.php');
 
-  $db = new Database();
+$db = new Database();
 
-  /*
-  $games = combo($arrC);
-  for ($i = 0; $i < count($games); $i++) {
-    print $db->addGame($games[$i]['Team A'], $games[$i]['Team B'], '2014-08-16 08:30:00');
-    print " => ". $games[$i]['Team A'] ." x ". $games[$i]['Team B'] ."</br>";
-  }
-  */
 if ($_POST['action'] == 'upd_sumula') {
 	/*  ID_SCORE_TYPE
 			-----------------
@@ -52,9 +25,13 @@ if ($_POST['action'] == 'fix') {
 	echo '<a class="btn btn-default btn-wide pull-right" href="javascript:history.back(-1);"/>Voltar</a>';
 	
 }
+if ($_POST['action'] == 'end') {
+	$db->endGame($_POST['id_game'], $_POST['score_team_a'], $_POST['score_team_b']);
+	echo "<meta http-equiv='refresh' content='0; url=/jogos.php'>";
+}
 
 if ($_POST['action'] != 'fix') {
-
+	
   /* List a game */
   $id = $_POST['id_game'];
   $db->query('SELECT * FROM vw_games WHERE id_game ='. $id);
@@ -164,7 +141,16 @@ if ($_POST['action'] != 'fix') {
         ?></ul>
       </td>
     </tr>
-  
   </table>
+	<hr />
+	<p class="">
+	<form class="pull-right" method="post" action="sumula.php">
+		<input type="hidden" name="id_game" value="<?php echo $_POST['id_game']; ?>">
+		<input type="hidden" name="action" value="end">
+		<input type="hidden" name="score_team_a" value="<?php echo $scoreA['placar'];?>">
+		<input type="hidden" name="score_team_b" value="<?php echo $scoreB['placar'];?>">
+		<input type="submit"  class="btn btn-primary btn-wide pull-right" value="Finalizar Jogo"/>
+	</form>
+	</p>
 <?php } ?>  
 <?php include_once('bottom.php'); ?>

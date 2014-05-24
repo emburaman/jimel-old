@@ -28,6 +28,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		$idTeamA     = $dados[0]['id_team_a'];
 		$idTeamB     = $dados[0]['id_team_b'];
 		$idGamePlace = $dados[0]['id_game_place'];
+		$idGroup     = $dados[0]['id_group'];
 		$time        = explode(" ", $dados[0]['date_time']);
 		  $time      = $time[1];
 	}	?>
@@ -39,7 +40,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		<p class="mbl"><label for="id_team_a">Equipe A:</label>
 			<select name="id_team_a" class="form-control"><option disabled="disabled" selected="selected">< Selecione uma equipe ></option>
 			<?php
-			$lsTeamA = $db->getTeams(null, $idCategory);
+			$lsTeamA = $db->getTeams(null, null, $idCategory);
 			for ($i = 0; $i < $db->rowCount(); $i++) { 
 				$chk = '';
 				if ($lsTeamA[$i]['id'] == $idTeamA) { $chk = ' selected="selected"'; }
@@ -52,7 +53,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		<p class="mbl"><label for="id_team_a">Equipe B:</label>
 			<select name="id_team_b" class="form-control"><option disabled="disabled" selected="selected">< Selecione uma equipe ></option>
 			<?php
-			$lsTeamB = $db->getTeams(null, $idCategory);
+			$lsTeamB = $db->getTeams(null, null, $idCategory);
 			for ($i = 0; $i < $db->rowCount(); $i++) { 
 				$chk = '';
 				if ($lsTeamB[$i]['id'] == $idTeamB) { $chk = ' selected="selected"'; }
@@ -78,6 +79,19 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 			<?php } ?>
 			</select>
 		</p>
+
+		<p class="mbl"><label for="id_group">Grupo:</label>
+			<select name="id_group" class="form-control"><option disabled="disabled" selected="selected">< Selecione um grupo (opcional) ></option>
+			<?php
+			$group = $db->getGroups($cat);
+			for ($i = 0; $i < $db->rowCount(); $i++) { 
+				$chk = '';
+				if ($group[$i]['id_group'] == $idGroup) { $chk = ' selected="selected"'; }
+			?>
+				<option value="<?php echo $group[$i]['id_group']; ?>" <?php echo $chk; ?>><?php echo $group[$i]['id_group']; ?></option>
+			<?php } ?>
+			</select>
+		</p>
 		<button type="submit" class="btn btn-primary btn-wide mrm pull-left" name="action" value="save">Salvar</button>
 	</form>
 	<form class="pull-right" method="post" action="jogos.php">
@@ -98,6 +112,7 @@ if ($_POST['action'] == 'save' && $_POST['id_game'] > 0) {
 						 'id_event'       => $_REQUEST['id_event'],
 						 'date_time'      => '2014-08-16 '. $_REQUEST['time'],
 						 'id_game_place'  => $_REQUEST['id_game_place'],
+						 'id_group'       => $_REQUEST['id_group'],
 						 );
 
 	$dados = $db->updGame($arr);
@@ -111,6 +126,7 @@ elseif ($_POST['action'] == 'save') {
 						 'id_event'       => $_REQUEST['id_event'],
 						 'date_time'      => '2014-08-16 '. $_REQUEST['time'],
 						 'id_game_place'  => $_REQUEST['id_game_place'],
+						 'id_group'       => $_REQUEST['id_group'],
 						 );
 	
 		$dados = $db->addGame($u);
@@ -168,12 +184,13 @@ if (empty($_POST)) {
 				<tr>
 					<th>#</th>
 					<th>Horário</th>
-					<th>Quadra</th>
+					<th>Grupo</th>
 					<th>Time A</th>
 					<th></th
 					><th></th>
 					<th></th>
 					<th>Time B</th>
+					<th>Quadra</th>
 				</tr>
 			</thead>
 		
@@ -185,6 +202,7 @@ if (empty($_POST)) {
 					$gId = $games[$g]['id_game'];
 					$gTime = date("d/m/Y h:i", strtotime($games[$g]['date_time']));
 					$gPlace = $games[$g]['quadra'];
+					$gGroup = $games[$g]['id_group'];
 					$gTeamA = $games[$g]['team_a'];
 					$gTeamB = $games[$g]['team_b'];
 					$gScrA = $games[$g]['score_a'];
@@ -192,12 +210,13 @@ if (empty($_POST)) {
 		
 					echo "<tr><td>$gId</td>";
 					echo "<td>$gTime</td>";
-					echo "<td>$gPlace</td>";
+					echo "<td>$gGroup</td>";
 					echo "<td>$gTeamA</td>";
 					echo "<td>$gScrA</td>";
 					echo "<td>x</td>";
-					echo "<td>$ScrB</td>";
+					echo "<td>$gScrB</td>";
 					echo "<td>$gTeamB</td>";
+					echo "<td>$gPlace</td>";
 					echo "<td align='right'>";
 					echo "<form class='pull-right' method='post' action='sumula.php'><input type='hidden' name='action' value='edit' />
 								<button class='btn btn-primary btn-xs' name='id_game' value='". $gId ."'><span class='fui-user'></span> Súmula</button></form>";
@@ -212,6 +231,7 @@ if (empty($_POST)) {
 		</table>
 		<?php		
 		echo "<a href='#category_". $categs[$i]['id_category'] ."' class='btn btn-default'>Início da Categoria</a> <a href='#top' class='btn btn-default'>Topo</a>";
+		echo "<hr />";
 	}
 }
 
