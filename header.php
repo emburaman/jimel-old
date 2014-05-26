@@ -25,37 +25,40 @@
 					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-01">
 						<span class="sr-only">Toggle navigation</span>
 					</button>
-					<a class="navbar-brand" href="/">JIMEL</a>
+					<a class="navbar-brand pull-left" href="/">JIMEL</a>
+
+          <div class="navbar-right mll pull-right">
+          <?php if (!isset($_COOKIE['jimeluser'])) {?>
+            <a href="login.php" class="btn btn-default navbar-btn btn-xs" type="button">Log in</a>
+          <?php } else {?>
+            <p class="navbar-text salutation">Bem-vindo <?php print $_COOKIE['jimeluser']['firstname'];?>. <a href="logout.php" class="btn btn-default navbar-btn btn-xs" type="button">Log out</a></p>
+          <?php } ?>
+          </div>
+
+          <div class="collapse navbar-collapse pull-left" id="navbar-collapse-01">
+            <ul class="nav navbar-nav">           
+              <li><a href="atletas.php">Atletas</a></li>
+              <li><a href="equipes.php">Equipes</a></li>
+              
+              <?php if ($_COOKIE['jimeluser']['profile'] == 3) :?>
+              <li class="dropdown">
+                <a href="#fakelink" class="dropdown-toggle" data-toggle="dropdown">Admin<span class="caret"></span></a>
+                <span class="dropdown-arrow dropdown-arrow-inverse"></span>
+                <ul class="dropdown-menu dropdown-inverse">
+                  <li><a href="usuarios.php">Usuários</a></li>
+                  <li><a href="jogos.php">Jogos</a></li>
+                  <li><a href="classificacao.php">Classificação</a></li>
+                  <!-- 
+                  <li><a href="atletas.php">Eventos</a></li>
+                  <li><a href="equipes.php">Categorias</a></li>
+                  -->
+                </ul>
+              </li>
+              <?php endif; ?>
+            </ul>
+          </div>
 				</div>
-				<div class="collapse navbar-collapse" id="navbar-collapse-01">
-					<ul class="nav navbar-nav">           
-						<li><a href="atletas.php">Atletas</a></li>
-						<li><a href="equipes.php">Equipes</a></li>
-						
-						<?php if ($_COOKIE['jimeluser']['profile'] == 3) :?>
-						<li class="dropdown">
-							<a href="#fakelink" class="dropdown-toggle" data-toggle="dropdown">Admin<span class="caret"></span></a>
-							<span class="dropdown-arrow dropdown-arrow-inverse"></span>
-							<ul class="dropdown-menu dropdown-inverse">
-								<li><a href="usuarios.php">Usuários</a></li>
-								<li><a href="jogos.php">Jogos</a></li>
-								<li><a href="classificacao.php">Classificação</a></li>
-								<!-- 
-								<li><a href="atletas.php">Eventos</a></li>
-								<li><a href="equipes.php">Categorias</a></li>
-								-->
-							</ul>
-						</li>
-						<?php endif; ?>
-					</ul>
-			<div class="navbar-right mll">
-			<?php if (!isset($_COOKIE['jimeluser'])) {?>
-				<a href="login.php" class="btn btn-default navbar-btn btn-xs" type="button">Log in</a>
-			<?php } else {?>
-				<p class="navbar-text">Bem-vindo <?php print $_COOKIE['jimeluser']['firstname'];?>.</p>
-				<a href="logout.php" class="btn btn-default navbar-btn btn-xs" type="button">Log out</a>
-			<?php } ?>
-			
+
 			<!--
 			</div>
 					<form class="navbar-form navbar-right" action="#" role="search">

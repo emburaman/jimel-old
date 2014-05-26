@@ -1,3 +1,4 @@
+<div id="screen-size"></div>
 		</div>
     <!-- /.container -->
 
@@ -18,7 +19,7 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 				$(".escalado").mouseleave(function(e) {
-					var l = $(".escalado.checked").size();
+          var l = $(".escalado.checked").size();
 					if (l > 0) {
 						$(".desescalar").removeAttr("disabled");
 					} else {
@@ -34,11 +35,14 @@
 				});
 		
 				$('#colorpicker').farbtastic('#color');
-				
-				$().click(function(e) {
-					alert();
-				});
-			});
+
+      });
+
+      $(window).resize(function() {
+        var largura = $(document).width();
+        var altura  = $(document).height();
+        $('#screen-size').text(largura +'x'+ altura);
+      });
 		</script>
   </body>
 </html>

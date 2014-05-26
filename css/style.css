@@ -1,5 +1,14 @@
 @charset "utf-8";
 /* CSS Document */
+.col-xs-12 {
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .mobile-hidden {
+    display: none;
+  }
+}
 
 ul, li {
   list-style: none;
@@ -8,6 +17,24 @@ ul, li {
 }
 .navbar {
 	margin-top: 10px;
+}
+.navbar-brand {
+  height: auto;
+  overflow: hidden;
+}
+.navbar-header {
+  width: 100%;
+}
+.navbar-collapse.in {
+  overflow: hidden;
+  width: 100%;
+}
+.salutation {
+  font-size: 80%;
+  margin: 0 10px 0 0;
+}
+.salutation .navbar-btn.btn-xs {
+  margin: 0 0 0 10px;
 }
 .mbl {
 	margin-bottom: 15px;
@@ -83,8 +110,22 @@ td {
 }
 .regulamento {
 	height: 450px;
-	overflow: auto;
+  padding-right: 10px;
+	overflow-x: hidden;
+	overflow-y: scroll;
 }
+  ::-webkit-scrollbar {
+    background-color: #CCC;
+    width: 5px;
+  }
+   
+  ::-webkit-scrollbar-track {
+  }
+   
+  ::-webkit-scrollbar-thumb {
+    background-color: #999;
+  }
+
 .regulamento p,
 .mapa p {
 	font-size: 80%;

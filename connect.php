@@ -3,13 +3,13 @@ class Database {
 	private $host    = 'localhost';
 	private $dbname  = 'jimel';
 	private $user    = 'root';
-	//private $pass    = '';
+	private $pass    = '';
 	private $dbh;
 	private $error;
 	private $stmt;
 
 	/* EC2 CREDENTIALS */
-	private $pass    = '$marmita@1';
+	//private $pass    = '$marmita@1';
 	
 
 	public function __construct(){
@@ -106,7 +106,7 @@ class Database {
 		return $row;
 	}
 	public function getUsers($e = null) {
-		$w = ' WHERE profile > 0';
+		$w = ' WHERE profile > 0 OR is_staff > 0';
 		if ($e != null) {
 			$w .= " AND id_user = $e";
 		}

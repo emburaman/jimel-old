@@ -179,12 +179,12 @@ if (empty($_POST)) {
 	<table class="table table-striped table-hover table-condensed">
 		<thead>
 			<tr>
-				<th>#</th>
+				<th class="mobile-hidden">#</th>
 				<th>Nome</th>
-				<th>Email</th>
-				<th>Fone</th>
-				<th>Igreja</th>
-				<th>Papel</th>
+				<th class="mobile-hidden">Email</th>
+				<th class="mobile-hidden">Fone</th>
+				<th class="mobile-hidden">Igreja</th>
+				<th class="mobile-hidden">Papel</th>
 				<th></th>
 				<th></th>
 			</tr>
@@ -195,12 +195,12 @@ if (empty($_POST)) {
 		echo "<form class='pull-right' method='post' action='usuarios.php'><input type='hidden' name='action' value='edit' />";
 		for ($i = 0; $i < $count; $i++) {
 			$rec = $i+1;
-			echo "<tr><td>". $rec ."</td>";
+			echo "<tr><td class='mobile-hidden'>". $rec ."</td>";
 			echo "<td>". $dados[$i]['firstname'] ." ". $dados[$i]['lastname'] ."</td>";
-			echo "<td>". $dados[$i]['email'] ."</td>";
-			echo "<td>". $dados[$i]['phone'] ."</td>";
-			echo "<td>". $dados[$i]['church'] ."</td>";
-			echo "<td>". $prof[$dados[$i]['profile']] ."</td>";
+			echo "<td class='mobile-hidden'>". $dados[$i]['email'] ."</td>";
+			echo "<td class='mobile-hidden'>". $dados[$i]['phone'] ."</td>";
+			echo "<td class='mobile-hidden'>". $dados[$i]['church'] ."</td>";
+			echo "<td class='mobile-hidden'>". $prof[$dados[$i]['profile']] ."</td>";
 			if ($dados[$i]['is_staff'] > 0) { echo "<td>STAFF</td>"; } else { echo "<td></td>"; }
 			echo "<td><button class='btn btn-primary btn-xs' name='id_user' value='". $dados[$i]['id_user'] ."'><span class='fui-new'></span> Editar</button></td>";		
 			echo "</tr>";

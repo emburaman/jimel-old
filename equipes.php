@@ -179,12 +179,12 @@ if (empty($_POST)) {
 	<table class="table table-striped table-hover table-condensed">
 		<thead>
 			<tr>
-				<th>#</th>
+				<th class='mobile-hidden'>#</th>
 				<th>Nome</th>
-				<th>Atletas</th>
-				<th>Cor</th>
+				<th class='mobile-hidden'>Atletas</th>
+				<th class='mobile-hidden'>Cor</th>
 				<th>Categoria</th>
-				<th>Igreja</th>
+				<th class='mobile-hidden'>Igreja</th>
 				<th></th>
 			</tr>
 		</thead>
@@ -193,12 +193,12 @@ if (empty($_POST)) {
 		<?php 
 		for ($i = 0; $i < $count; $i++) {
 			$rec = $i+1;
-			echo "<tr><td>". $rec ."</td>";
+			echo "<tr><td class='mobile-hidden'>". $rec ."</td>";
 			echo "<td>". $dados[$i]['team_name'] ."</td>";
-			echo "<td>". $dados[$i]['num_athletes'] ."</td>";
-			echo "<td><span class='btn btn-xs' style='background-color:". $dados[$i]['color'] ."'>&nbsp;&nbsp;&nbsp;</span></td>";
+			echo "<td class='mobile-hidden'>". $dados[$i]['num_athletes'] ."</td>";
+			echo "<td class='mobile-hidden'><span class='btn btn-xs' style='background-color:". $dados[$i]['color'] ."'>&nbsp;&nbsp;&nbsp;</span></td>";
 			echo "<td>". $dados[$i]['category'] ."</td>";
-			echo "<td>". $dados[$i]['entity'] ."</td>";
+			echo "<td class='mobile-hidden'>". $dados[$i]['entity'] ."</td>";
 			echo "<td align='right'>";
 			echo "<form class='pull-right' method='post' action='escalacao.php'><input type='hidden' name='action' value='edit' />
 						<button class='btn btn-primary btn-xs' name='id_team' value='". $dados[$i]['id'] ."'><span class='fui-user'></span> Escalação</button></form>";
