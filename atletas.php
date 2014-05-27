@@ -152,10 +152,10 @@ if (empty($_POST)) {
 	<table class="table table-striped table-hover table-condensed">
 		<thead>
 			<tr>
-				<th>#</th>
+				<th class='mobile-hidden'>#</th>
 				<th>Nome</th>
-				<th>Email</th>
-				<th>Data de Nascimento</th>
+				<th class='mobile-hidden'>Email</th>
+				<th class='mobile-hidden'>Data de Nascimento</th>
 				<th>Idade</th>
 				<th></th>
 			</tr>
@@ -166,12 +166,12 @@ if (empty($_POST)) {
 		echo "<form class='pull-right' method='post' action='atletas.php'><input type='hidden' name='action' value='edit' />";
 		for ($i = 0; $i < $count; $i++) {
 			$rec = $i+1;
-			echo "<tr><td>". $rec ."</td>";
+			echo "<tr><td class='mobile-hidden'>". $rec ."</td>";
 			echo "<td>". $dados[$i]['firstname'] ." ". $dados[$i]['lastname'] ."</td>";
-			echo "<td>". $dados[$i]['email'] ."</td>";
+			echo "<td class='mobile-hidden'>". $dados[$i]['email'] ."</td>";
 			
 			$newDate = date("d-m-Y", strtotime($dados[$i]['birthdate']));
-			echo "<td>$newDate</td>";
+			echo "<td class='mobile-hidden'>$newDate</td>";
 			echo "<td>". $dados[$i]['age'] ."</td>";
 			echo "<td><button class='btn btn-primary btn-xs' name='user' value='". $dados[$i]['id_user'] ."'><span class='fui-new'></span> Editar</button></td>";		
 			echo "</tr>";

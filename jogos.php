@@ -191,6 +191,7 @@ if (empty($_POST)) {
 					<th></th>
 					<th>Time B</th>
 					<th>Quadra</th>
+					<th></th>
 				</tr>
 			</thead>
 		

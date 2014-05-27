@@ -5,7 +5,7 @@ if (isset($_COOKIE['jimeluser'])) {}
 include_once('header.php');
 ?>
 
-<div class="col-lg-8">
+<div class="col-lg-8 col-xs-12">
 	<h4>JIMEL - Regulamento Futsal 2014</h4>
 	<div class="regulamento">
 	<p>CAPÍTULO I</p>
@@ -88,21 +88,21 @@ include_once('header.php');
 	</div>
 </div>
 
-<div class="col-lg-4">
+<div class="col-lg-4 col-xs-12">
 	<div class="mapa">
 		<h4>Como chegar</h4>
 		<h5><a href="http://paraiso48.com.br/" title="Paraíso 48" target="_blank">Paraíso 48</a></h5>
 		<p><strong>Estrada Municipal do Carmo, 1201</strong><br>
 		Km 48 da Rodovia Bunjiro Nakao (Saída no km 45 da rodovia Raposo Tavares)<br>
 		Bairro do Carmo – Estância Turística de São Roque – SP – 18145-340</p>
-		<iframe src="https://www.google.com/maps/embed?pb=!1m22!1m12!1m3!1d29243.67923701699!2d-47.06273189999999!3d-23.623695299999966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m7!1i0!3e6!4m0!4m3!3m2!1d-23.6230379!2d-47.066190899999995!5e0!3m2!1spt-BR!2s!4v1400933269941" width="370" height="280" frameborder="0" style="border:0"></iframe>
+		<iframe src="https://www.google.com/maps/embed?pb=!1m22!1m12!1m3!1d29243.67923701699!2d-47.06273189999999!3d-23.623695299999966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m7!1i0!3e6!4m0!4m3!3m2!1d-23.6230379!2d-47.066190899999995!5e0!3m2!1spt-BR!2s!4v1400933269941" width="100%" height="280" frameborder="0" style="border:0"></iframe>
 	</div>
 </div>
 
-<div class="col-lg-4">
+<div class="col-lg-4 col-xs-12">
 	<div class="">
 		<h4>Como usar o sistema</h4>
-		<iframe width="370" height="208" src="//www.youtube.com/embed/yWe0PxUEVoc" frameborder="0" allowfullscreen></iframe>
+		<iframe width="100%" height="208" src="//www.youtube.com/embed/yWe0PxUEVoc" frameborder="0" allowfullscreen></iframe>
 	</div>
 </div>
 
