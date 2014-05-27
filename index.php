@@ -5,7 +5,7 @@ if (isset($_COOKIE['jimeluser'])) {}
 include_once('header.php');
 ?>
 
-<div class="col-lg-8 col-xs-12">
+<div class="col-lg-7 col-md-7 col-xs-12">
 	<h4>JIMEL - Regulamento Futsal 2014</h4>
 	<div class="regulamento">
 	<p>CAPÍTULO I</p>
@@ -88,7 +88,7 @@ include_once('header.php');
 	</div>
 </div>
 
-<div class="col-lg-4 col-xs-12">
+<div class="col-lg-4 col-md-4 col-xs-12 pull-right">
 	<div class="mapa">
 		<h4>Como chegar</h4>
 		<h5><a href="http://paraiso48.com.br/" title="Paraíso 48" target="_blank">Paraíso 48</a></h5>
@@ -99,7 +99,7 @@ include_once('header.php');
 	</div>
 </div>
 
-<div class="col-lg-4 col-xs-12">
+<div class="col-lg-4 col-md-4 col-xs-12 pull-right">
 	<div class="">
 		<h4>Como usar o sistema</h4>
 		<iframe width="100%" height="208" src="//www.youtube.com/embed/yWe0PxUEVoc" frameborder="0" allowfullscreen></iframe>

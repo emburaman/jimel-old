@@ -1719,7 +1719,7 @@ fieldset[disabled] .input-group-btn .btn-default.active {
 .checkbox,
 .radio {
   margin-bottom: 12px;
-  padding-left: 32px;
+  padding-left: 24px;
   position: relative;
   -webkit-transition: color 0.25s linear;
   transition: color 0.25s linear;
@@ -1961,7 +1961,7 @@ fieldset[disabled] .input-group-btn .btn-default.active {
   border: none;
   color: #34495e;
   margin: 0;
-  padding: 0 21px;
+  padding: 0 21px 0 0;
   height: 53px;
   line-height: 53px;
 }

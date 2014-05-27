@@ -6,84 +6,92 @@ if (!isset($_COOKIE['jimeluser'])) {
 }
 
 include_once('connect.php');
+$db = new Database();
 
 /* New/Edit athlete */
 if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 	$status = 1;
 	$profile = 1;
+  $staff = 0;
 	if ($_POST['action'] == 'new') {	echo "<h1>Novo Usuário</h1>"; }
 	if ($_POST['action'] == 'edit') {
 		echo "<h1>Editando Usuário</h1>"; 
 		
-		$conn = new Database();
-		$dados = $conn->getUsers($_POST['id_user']);
-		$count = $conn->rowCount();
+		$dados = $db->getUsers($_POST['id_user']);
+		$count = $db->rowCount();
 		$dados = $dados[0];
 		
-		
-		/*
-		print '<pre>';
-		print_r($dados);
-		print '</pre>';
-		*/
-		
-		$uname = $dados['user_name'];
-		$fname = $dados['firstname'];
-		$lname = $dados['lastname'];
-		$email = $dados['email'];
-		$phone = $dados['phone'];
+		$uname     = $dados['user_name'];
+    $profile   = $dados['profile'];
+		$fname     = $dados['firstname'];
+		$lname     = $dados['lastname'];
+		$email     = $dados['email'];
+		$phone     = $dados['phone'];
 		$birthdate = date("d/m/Y", strtotime($dados['birthdate']));
-		$rg = $dados['rg'];
-		$cpf = $dados['cpf'];
-		$status = $dados['status'];
-		$staff = $dados['is_staff'];
-	}
-	?>
-	<form method="post" action="usuarios.php">
+		$rg        = $dados['rg'];
+		$cpf       = $dados['cpf'];
+		$gender    = $dados['gender'];
+		$status    = $dados['status'];
+		$id_assoc  = $dados['id_association'];
+    if ($dados['is_staff'] != NULL) { $staff = $dados['is_staff']; }
+    
+	} 
+  ?>
+  
+	<form id="user-form" method="post" action="usuarios.php">
 		<?php if ($_POST['id_user']) {?>
 	  <input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>" />
 		<?php } ?>
 		<p class="mbl">
-			<label class="radio pull-left"><input type="radio" name="profile" value="1" data-toggle="radio" <?php if ($profile == 1) { echo "checked";} ?>>Representante</label>
-			<label class="radio pull-left mll"><input type="radio" name="profile" value="3" data-toggle="radio" <?php if ($profile == 3) { echo "checked";} ?>>Admin</label>
+			<label class="radio pull-left"><input type="radio" id="profile" name="profile" value="1" data-toggle="radio" <?php if ($profile == 1) { echo "checked";} ?> />Representante</label>
+			<label class="radio pull-left mll"><input type="radio" id="profile" name="profile" value="3" data-toggle="radio" <?php if ($profile == 3) { echo "checked";} ?> />Admin</label>
 		</p>
 
 		<p class="mbl clearfix right">
-			<label class="checkbox pull-left"><input type="checkbox" name="staff" value="1" data-toggle="checkbox" <?php if ($staff == 1) { echo "checked";} ?>>STAFF</label>
+    <?php 
+    ?>
+			<label class="checkbox pull-left"><input type="checkbox" id="staff" name="staff" value="1" data-toggle="checkbox" <?php if ($staff == 1) { echo "checked";} ?> />STAFF</label>
 		</p>
-		<p class="mbl"><input type="text"  name="uname" placeholder="User Name" class="form-control" <?php if ($_POST['id_user']) { print 'readonly="readonly"'; } ?> value="<?php echo $uname; ?>" /></p>
-		<p class="mbl"><input type="text"  name="fname" placeholder="Nome" class="form-control" value="<?php echo $fname; ?>" /></p>
-		<p class="mbl"><input type="text"  name="lname" placeholder="Sobrenome" class="form-control" value="<?php echo $lname; ?>" /></p>
-		<p class="mbl"><input type="email" name="email" placeholder="Email" class="form-control" value="<?php echo $email; ?>" /></p>
-		<p class="mbl"><input type="phone" name="phone" placeholder="Telefone" class="form-control" value="<?php echo $phone; ?>" /></p>
-		<p class="mbl"><input type="text"  name="bdate" placeholder="Data de Nascimento" class="form-control" value="<?php echo $birthdate; ?>" /></p>
-		<p class="mbl"><input type="text"  name="rg"    placeholder="RG" class="form-control" value="<?php echo $rg; ?>" /></p>
-		<p class="mbl"><input type="text"  name="cpf"   placeholder="CPF" class="form-control" value="<?php echo $cpf; ?>" /></p>
+		<p class="mbl"><input type="text"     id="uname" name="uname" placeholder="User Name" class="form-control" <?php if ($_POST['id_user']) { print 'readonly="readonly"'; } ?> value="<?php echo $uname; ?>" /></p>
+		<p class="mbl"><input type="text"     id="fname" name="fname" placeholder="Nome" class="form-control" value="<?php echo $fname; ?>" /></p>
+		<p class="mbl"><input type="text"     id="lname" name="lname" placeholder="Sobrenome" class="form-control" value="<?php echo $lname; ?>" /></p>
+		<p class="mbl"><input type="password" id="pwd"   name="pwd"   placeholder="Senha" class="form-control" value="" /></p>
+		<p class="mbl"><input type="email"    id="email" name="email" placeholder="Email" class="form-control" value="<?php echo $email; ?>" /></p>
+		<p class="mbl"><input type="phone"    id="phone" name="phone" placeholder="Telefone" class="form-control" value="<?php echo $phone; ?>" /></p>
+		<p class="mbl"><input type="text"     id="bdate" name="bdate" placeholder="Data de Nascimento" class="form-control" value="<?php echo $birthdate; ?>" /></p>
+		<p class="mbl clearfix">
+			<label class="radio pull-left"><input type="radio" id="gender" name="gender" value="M" data-toggle="radio" <?php if ($gender == 'M') { echo "checked";} ?>>Masculino</label>
+			<label class="radio pull-left mll"><input type="radio" id="gender" name="gender" value="F" data-toggle="radio" <?php if ($gender == 'F') { echo "checked";} ?>>Feminino</label>
+		</p>
+
+		<p class="mbl"><input type="text"     id="rg"    name="rg"    placeholder="RG" class="form-control" value="<?php echo $rg; ?>" /></p>
+		<p class="mbl"><input type="text"     id="cpf"   name="cpf"   placeholder="CPF" class="form-control" value="<?php echo $cpf; ?>" /></p>
 
 		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
 		<p class="mbl"><select name="id_association" class="form-control"><option>< Selecione uma entidade ></option><?php
-			$conne = new Database();
-			$ents = $conne->getEntities();
-		  for ($i = 0; $i < $conne->rowCount(); $i++) {
+			$ents = $db->getEntities();
+		  for ($i = 0; $i < $db->rowCount(); $i++) {
 				$chk = '';
-				if (isset($dados['id_association']) && ($ents[$i]['id_association'] == $dados['id_association'])) {
+				if (isset($id_assoc) && ($ents[$i]['id_association'] == $id_assoc)) {
 					$chk = 'selected';
 				}
 				echo "<option value='". $ents[$i]['id_association'] ."' $chk>". $ents[$i]['name'] ."</option>";
 			} ?></select></p>
-		<?php } ?>
+		<?php } else { ?>
+	  <input type="hidden" id="id_association" name="id_association" value="<?php echo $id_assoc; ?>" />
+    <?php }?>
 
 		<p class="mbl clearfix">
-			<label class="radio pull-left"><input type="radio" name="status" value="1" data-toggle="radio" <?php if ($status == 1) { echo "checked";} ?>>Ativo</label>
-			<label class="radio pull-left mll"><input type="radio" name="status" value="2" data-toggle="radio" <?php if ($status == 0) { echo "checked";} ?>>Inativo</label>
+			<label class="radio pull-left"><input type="radio" id="status" name="status" value="1" data-toggle="radio" <?php if ($status == 1) { echo "checked";} ?>>Ativo</label>
+			<label class="radio pull-left mll"><input type="radio" id="status" name="status" value="2" data-toggle="radio" <?php if ($status == 0) { echo "checked";} ?>>Inativo</label>
 		</p>
-		<button type="submit" class="btn btn-primary btn-wide mrm pull-left" name="action" value="save">Salvar</button>
+		<button type="submit" class="btn btn-primary btn-sm mrm pull-left" name="action" value="save">Salvar</button>
 	</form>
 	<form class="pull-right" method="post" action="usuarios.php">
 		<input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>">
 		<input type="hidden" name="action" value="del">
 		<input type="hidden" name="name" value="<?php echo $fname ." ". $lname; ?>">
-		<input type="submit"  class="btn btn-danger btn-wide pull-right" value="Excluir"/>
+		<input type="submit"  class="btn btn-danger btn-sm pull-right" value="Excluir"/>
 	</form>
 	<?php
 }
@@ -95,6 +103,7 @@ if ($_POST['action'] == 'save' && $_POST['id_user'] > 0) {
 						 'id_user' => $_REQUEST['id_user'],
 						 'fname' => $_REQUEST['fname'],
 						 'lname' => $_REQUEST['lname'],
+						 'pwd' => $_REQUEST['pwd'],
 						 'email' => $_REQUEST['email'],
 						 'bdate' => $date,
 						 'rg' => $_REQUEST['rg'],
@@ -103,12 +112,11 @@ if ($_POST['action'] == 'save' && $_POST['id_user'] > 0) {
 						 'phone' => $_REQUEST['phone'],
 						 'is_staff' => $_REQUEST['staff'],
 						 'profile' => $_REQUEST['profile'],
+						 'gender' => $_REQUEST['gender'],
 						 'status' => $_REQUEST['status']
 						 );
-	include_once('connect.php');
-	$conn = new Database();
-	$dados = $conn->updUser($u);
-	echo "<meta http-equiv='refresh' content='0; url=/usuarios.php?h=". $_REQUEST['id_user'] ."'>";
+    $dados = $db->updUser($u);
+	echo "<meta http-equiv='refresh' content='0; url=usuarios.php'>";
 }
 elseif ($_POST['action'] == 'save') {
 	$date = str_replace('/', '-', $_REQUEST['bdate']);
@@ -118,6 +126,7 @@ elseif ($_POST['action'] == 'save') {
 						 'uname' => $_REQUEST['uname'],
 						 'fname' => $_REQUEST['fname'],
 						 'lname' => $_REQUEST['lname'],
+						 'pwd' => $_REQUEST['pwd'],
 						 'email' => $_REQUEST['email'],
 						 'bdate' => $date,
 						 'rg' => $_REQUEST['rg'],
@@ -126,12 +135,13 @@ elseif ($_POST['action'] == 'save') {
 						 'phone' => $_REQUEST['phone'],
 						 'is_staff' => $_REQUEST['staff'],
 						 'profile' => $_REQUEST['profile'],
+						 'gender' => $_REQUEST['gender'],
 						 'status' => $_REQUEST['status']
 						 );
 						 
 	include_once('connect.php');
 	$conn = new Database();
-	$dados = $conn->addUser($u);
+	$dados = $db->addUser($u);
 	echo "<meta http-equiv='refresh' content='0; url=/usuarios.php?h=". $dados ."'>";
 }
 
@@ -153,22 +163,22 @@ if ($_POST['action'] == 'del') { ?>
 if ($_POST['action'] == 'del_yes') {
 	print_r($_POST);
 	$conn = new Database();
-	$dados = $conn->delUser($_POST['id_user']);
+	$dados = $db->delUser($_POST['id_user']);
 	echo "<meta http-equiv='refresh' content='0; url=/usuarios.php'>";
 }
 
 if (empty($_POST)) {
 	/* List athletes */
-	echo "<form class='pull-right' method='post' action='usuarios.php'><button class='btn btn-primary' name='action' value='new'><span class='fui-plus'></span> Novo Usuário</button></form>";
+	echo "<form class='pull-right' method='post' action='usuarios.php'><button class='btn btn-primary btn-sm' name='action' value='new'><span class='fui-plus'></span> Novo Usuário</button></form>";
 	echo "<h1>Usuários</h1>";
 	include_once('connect.php');
 	$conn = new Database();
 	if ($_COOKIE['jimeluser']['profile'] < 3) {
-	  $dados = $conn->getUsers($_COOKIE['jimeluser']['association']);
+	  $dados = $db->getUsers($_COOKIE['jimeluser']['association']);
 	} else {
-		$dados = $conn->getUsers();
+		$dados = $db->getUsers();
 	}
-	$count = $conn->rowCount();
+	$count = $db->rowCount();
 	
 	$prof = array(0 => 'Atleta',
 								1 => 'Representante',

@@ -1,7 +1,8 @@
 <?php
 class Database {
 	private $host    = 'localhost';
-	private $dbname  = 'jimel';
+	//private $dbname  = 'jimel';
+	private $dbname  = 'jimeltest01';
 	private $user    = 'root';
 	private $pass    = '';
 	private $dbh;
@@ -101,18 +102,16 @@ class Database {
 	public function getUser($u, $p) {
 		$this->query('SELECT * FROM es_user WHERE user_name = :uname AND password = :pword');
 		$this->bind(':uname', $u);
-		$this->bind(':pword', $p);
+		$this->bind(':pword', sha1($p));
 		$row = $this->single();
 		return $row;
 	}
 	public function getUsers($e = null) {
-		$w = ' WHERE profile > 0 OR is_staff > 0';
+		$w = ' WHERE (profile > 0 OR is_staff > 0)';
 		if ($e != null) {
 			$w .= " AND id_user = $e";
 		}
-		$qry = 'SELECT u.*, a.name AS church FROM es_user AS u 
-									LEFT JOIN es_association AS a ON a.id_association = u.id_association 
-									'. $w .' ORDER BY firstname ASC, lastname ASC';
+		$qry = 'SELECT u.*, a.name AS church FROM es_user AS u LEFT JOIN es_association AS a ON a.id_association = u.id_association '. $w .' ORDER BY firstname ASC, lastname ASC';
 		
 		$this->query($qry);
 		$row = $this->resultset();
@@ -120,10 +119,10 @@ class Database {
 	}
 
 	public function addUser($u = array()) {
-		$this->query('INSERT INTO es_user (user_name, password, firstname, lastname, email, birthdate, profile, status, rg, cpf, phone, is_staff) 
-		VALUES (:user, :pwd, :fname, :lname, :email, :bdate, :profile, :status, :rg, :cpf, :phone, :is_staff)');
+		$this->query('INSERT INTO es_user (user_name, password, firstname, lastname, email, birthdate, profile, status, rg, cpf, phone, is_staff, id_association, gender) 
+		VALUES (:user, :pwd, :fname, :lname, :email, :bdate, :profile, :status, :rg, :cpf, :phone, :is_staff, :id_association, :gender)');
 		$this->bind(':user', $u['uname']);
-		$this->bind(':pwd', sha1($u['uname']));
+		$this->bind(':pwd', sha1($u['pwd']));
 		$this->bind(':fname', $u['fname']);
 		$this->bind(':lname', $u['lname']);
 		$this->bind(':email', $u['email']);
@@ -132,8 +131,10 @@ class Database {
 		$this->bind(':rg', $u['rg']);
 		$this->bind(':cpf', $u['cpf']);
 		$this->bind(':phone', $u['phone']);
+		$this->bind(':gender', $u['gender']);
 		$this->bind(':is_staff', $u['is_staff']);
 		$this->bind(':profile', $u['profile']);
+		$this->bind(':id_association', $u['id_association']);
 		
 		$this->execute();
 		$uid = $this->lastInsertId();
@@ -141,8 +142,18 @@ class Database {
 	}
 
 	public function updUser($u = array()) {
-		$this->query('UPDATE es_user SET firstname=:fname, lastname=:lname, email=:email, birthdate=:bdate, status=:status, rg=:rg, cpf=:cpf, is_staff=:is_staff, phone=:phone, profile=:profile WHERE id_user=:id_user');
+    $p = '';
+    if($u['pwd'] && $u['pwd'] <> '') {
+      $p = ', password=:pwd';
+    }
+  
+    $qry = 'UPDATE es_user SET firstname=:fname'. $p .', lastname=:lname, email=:email, birthdate=:bdate, status=:status, rg=:rg, cpf=:cpf, is_staff=:is_staff, phone=:phone, profile=:profile, id_association=:id_association, gender=:gender WHERE id_user=:id_user';
+    $this->query($qry);
 		
+    if($u['pwd'] && $u['pwd'] <> '') {
+      $this->bind(':pwd', sha1($u['pwd']));
+    }
+    
 		$this->bind(':id_user', $u['id_user']);
 		$this->bind(':fname', $u['fname']);
 		$this->bind(':lname', $u['lname']);
@@ -152,8 +163,10 @@ class Database {
 		$this->bind(':rg', $u['rg']);
 		$this->bind(':cpf', $u['cpf']);
 		$this->bind(':phone', $u['phone']);
+		$this->bind(':gender', $u['gender']);
 		$this->bind(':profile', $u['profile']);
 		$this->bind(':is_staff', $u['is_staff']);
+		$this->bind(':id_association', $u['id_association']);
 		
 		$this->execute();
 		return true;
@@ -185,8 +198,8 @@ class Database {
 	}
 	
 	public function addAthlete($u = array()) {
-		$this->query('INSERT INTO es_user (user_name, password, firstname, lastname, email, birthdate, profile, status, rg, cpf) 
-		VALUES (:user, :pwd, :fname, :lname, :email, :bdate, :profile, :status, :rg, :cpf)');
+		$this->query('INSERT INTO es_user (user_name, password, firstname, lastname, email, birthdate, profile, status, rg, cpf, gender) 
+		VALUES (:user, :pwd, :fname, :lname, :email, :bdate, :profile, :status, :rg, :cpf, :gender)');
 		$this->bind(':user', $u['uname']);
 		$this->bind(':pwd', sha1($u['uname']));
 		$this->bind(':fname', $u['fname']);
@@ -197,6 +210,7 @@ class Database {
 		$this->bind(':status', $u['status']);
 		$this->bind(':rg', $u['rg']);
 		$this->bind(':cpf', $u['cpf']);
+		$this->bind(':gender', $u['gender']);
 		
 		if ($this->execute()) {
 			$uid = $this->lastInsertId();
@@ -212,7 +226,7 @@ class Database {
 	}
 
 	public function updAthlete($u = array()) {
-		$this->query('UPDATE es_user SET firstname=:fname, lastname=:lname, email=:email, birthdate=:bdate, status=:status, rg=:rg, cpf=:cpf WHERE id_user=:id_user');
+		$this->query('UPDATE es_user SET firstname=:fname, lastname=:lname, email=:email, birthdate=:bdate, status=:status, rg=:rg, cpf=:cpf, gender=:gender WHERE id_user=:id_user');
 		
 		$this->bind(':id_user', $u['id_user']);
 		$this->bind(':fname', $u['fname']);
@@ -222,6 +236,7 @@ class Database {
 		$this->bind(':status', $u['status']);
 		$this->bind(':rg', $u['rg']);
 		$this->bind(':cpf', $u['cpf']);
+		$this->bind(':gender', $u['gender']);
 		
 		$this->execute();
 		return true;

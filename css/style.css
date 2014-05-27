@@ -1,5 +1,8 @@
 @charset "utf-8";
 /* CSS Document */
+body {
+  margin-bottom: 20px;
+}
 .col-xs-12 {
   padding: 0;
 }
@@ -42,7 +45,7 @@ ul, li {
 h1 {
 	font-weight: 100;
 	letter-spacing: -0.05em;
-	line-height: 70%;
+	line-height: 85%;
 }
 #colorpicker {
 	background-color: #FFF;
@@ -144,4 +147,7 @@ table.classificacao td.sm {
 table.classificacao td.sm.highlight {
 	font-size: 120%;
 	font-weight: 900;
+}
+span.btn {
+  white-space: normal;
 }

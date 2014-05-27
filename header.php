@@ -27,7 +27,7 @@
 					</button>
 					<a class="navbar-brand pull-left" href="/">JIMEL</a>
 
-          <div class="navbar-right mll pull-right">
+          <div class="navbar-right pull-right mrl">
           <?php if (!isset($_COOKIE['jimeluser'])) {?>
             <a href="login.php" class="btn btn-default navbar-btn btn-xs" type="button">Log in</a>
           <?php } else {?>

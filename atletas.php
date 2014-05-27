@@ -27,16 +27,14 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		$rg = $dados['rg'];
 		$cpf = $dados['cpf'];
 		$status = $dados['status'];
+		$gender = $dados['gender'];
 	}
 	?>
 	<form method="post" action="atletas.php">
 	  <input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>" />
 
-		<?php if ($_POST['action'] == 'new' && $_COOKIE['jimeluser']['profile'] < 3) { ?>
+		<?php if (($_POST['action'] == 'new' || $_POST['action'] == 'edit') && $_COOKIE['jimeluser']['profile'] < 3) { ?>
 		<input type="hidden" name="id_association" value="<?php echo $_COOKIE['jimeluser']['association']; ?>" />
-		<?php } ?>
-		<?php if ($_POST['action'] == 'edit' && $_COOKIE['jimeluser']['profile'] < 3) { ?>
-		<input type="hidden" name="id_association" value="<?php echo $dados['id_association']; ?>" />
 		<?php } ?>
 
 		<p class="mbl"><input type="text"  name="fname" placeholder="Nome" class="form-control" value="<?php echo $fname; ?>" /></p>
@@ -45,6 +43,10 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		<p class="mbl"><input type="text"  name="bdate" placeholder="Data de Nascimento" class="form-control" value="<?php echo $birthdate; ?>" /></p>
 		<p class="mbl"><input type="text"  name="rg" placeholder="RG" class="form-control" value="<?php echo $rg; ?>" /></p>
 		<p class="mbl"><input type="text"  name="cpf" placeholder="CPF" class="form-control" value="<?php echo $cpf; ?>" /></p>
+		<p class="mbl clearfix">
+			<label class="radio pull-left"><input type="radio" id="gender" name="gender" value="M" data-toggle="radio" <?php if ($gender == 'M') { echo "checked";} ?>>Masculino</label>
+			<label class="radio pull-left mll"><input type="radio" id="gender" name="gender" value="F" data-toggle="radio" <?php if ($gender == 'F') { echo "checked";} ?>>Feminino</label>
+		</p>
 
 		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
 		<p class="mbl"><select name="id_association" class="form-control"><option>< Selecione uma entidade ></option><?php
@@ -63,13 +65,13 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 			<label class="radio pull-left"><input type="radio" name="status" value="1" data-toggle="radio" <?php if ($status == 1) { echo "checked";} ?>>Ativo</label>
 			<label class="radio pull-left mll"><input type="radio" name="status" value="2" data-toggle="radio" <?php if ($status == 0) { echo "checked";} ?>>Inativo</label>
 		</p>
-		<button type="submit" class="btn btn-primary btn-wide mrm pull-left" name="action" value="save">Salvar</button>
+		<button type="submit" class="btn btn-primary btn-sm mrm pull-left" name="action" value="save">Salvar</button>
 	</form>
 	<form class="pull-right" method="post" action="atletas.php">
 		<input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>">
 		<input type="hidden" name="action" value="del">
 		<input type="hidden" name="name" value="<?php echo $fname ." ". $lname; ?>">
-		<input type="submit"  class="btn btn-danger btn-wide pull-right" value="Excluir"/>
+		<input type="submit"  class="btn btn-danger btn-sm pull-right" value="Excluir"/>
 	</form>
 	<?php
 }
@@ -86,7 +88,8 @@ if ($_POST['action'] == 'save' && $_POST['id_user'] > 0) {
 						 'rg' => $_REQUEST['rg'],
 						 'cpf' => $_REQUEST['cpf'],
 						 'id_association' => $_REQUEST['id_association'],
-						 'status' => $_REQUEST['status']
+						 'status' => $_REQUEST['status'],
+						 'gender' => $_REQUEST['gender']
 						 );
 	include_once('connect.php');
 	$conn = new Database();
@@ -106,7 +109,8 @@ elseif ($_POST['action'] == 'save') {
 						 'rg' => $_REQUEST['rg'],
 						 'cpf' => $_REQUEST['cpf'],
 						 'id_association' => $_REQUEST['id_association'],
-						 'status' => $_REQUEST['status']
+						 'status' => $_REQUEST['status'],
+						 'gender' => $_REQUEST['gender']
 						 );
 	include_once('connect.php');
 	$conn = new Database();
@@ -138,7 +142,7 @@ if ($_POST['action'] == 'del_yes') {
 
 if (empty($_POST)) {
 	/* List athletes */
-	echo "<form class='pull-right' method='post' action='atletas.php'><button class='btn btn-primary' name='action' value='new'><span class='fui-plus'></span> Novo Atleta</button></form>";
+	echo "<form class='pull-right' method='post' action='atletas.php'><button class='btn btn-primary btn-sm' name='action' value='new'><span class='fui-plus'></span> Novo Atleta</button></form>";
 	echo "<h1>Atletas</h1>";
 	include_once('connect.php');
 	$conn = new Database();
