@@ -33,12 +33,10 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 	<form method="post" action="equipes.php">
 	  <input type="hidden" name="id_team" value="<?php echo $_POST['id_team']; ?>" />
 
-		<?php if ($_POST['action'] == 'new' && $_COOKIE['jimeluser']['profile'] < 3) { ?>
+		<?php if (($_POST['action'] == 'new' || $_POST['action'] == 'edit') && $_COOKIE['jimeluser']['profile'] < 3) { ?>
 		<input type="hidden" name="id_association" value="<?php echo $_COOKIE['jimeluser']['association']; ?>" />
 		<?php } ?>
-		<?php if ($_POST['action'] == 'edit' && $_COOKIE['jimeluser']['profile'] < 3) { ?>
-		<input type="hidden" name="id_association" value="<?php echo $id_association; ?>" />
-		<?php } ?>
+
 
 		<?php if ($_COOKIE['jimeluser']['profile'] < 3) { ?>
 		<input type="hidden" name="id_event" value="<?php echo $dados['id_event']; ?>" />
@@ -85,10 +83,16 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		} else {
 			echo '<input type="hidden" name="id_event" value="2" />';
 		} ?>
+
+		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
 		<p class="mbl clearfix">
 			<label class="radio pull-left"><input type="radio" name="status" value="1" data-toggle="radio" <?php if ($status == 1) { echo "checked";} ?>>Ativo</label>
 			<label class="radio pull-left mll"><input type="radio" name="status" value="2" data-toggle="radio" <?php if ($status == 0) { echo "checked";} ?>>Inativo</label>
 		</p>
+		<?php } else { ?>
+		<input type="hidden" name="status" value="<?php echo $status; ?>" />
+		<?php } ?>
+
 		<button type="submit" class="btn btn-primary btn-wide mrm pull-left" name="action" value="save">Salvar</button>
 	</form>
 	<form class="pull-right" method="post" action="equipes.php">
@@ -196,7 +200,7 @@ if (empty($_POST)) {
 			echo "<tr><td class='mobile-hidden'>". $rec ."</td>";
 			echo "<td>". $dados[$i]['team_name'] ."</td>";
 			echo "<td class='mobile-hidden'>". $dados[$i]['num_athletes'] ."</td>";
-			echo "<td class='mobile-hidden'><span class='btn btn-xs' style='background-color:". $dados[$i]['color'] ."'>&nbsp;&nbsp;&nbsp;</span></td>";
+			echo "<td class='mobile-hidden'><span class='btn btn-xs team-color' style='background-color:". $dados[$i]['color'] ."'>&nbsp;&nbsp;&nbsp;</span></td>";
 			echo "<td>". $dados[$i]['category'] ."</td>";
 			echo "<td class='mobile-hidden'>". $dados[$i]['entity'] ."</td>";
 			echo "<td align='right'>";

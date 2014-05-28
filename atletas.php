@@ -6,6 +6,7 @@ if (!isset($_COOKIE['jimeluser'])) {
 }
 
 include_once('connect.php');
+$db = new Database();
 
 /* New/Edit athlete */
 if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
@@ -14,10 +15,8 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 	if ($_POST['action'] == 'edit') {
 		echo "<h1>Editando Atleta</h1>"; 
 		
-		$conn = new Database();
-		$dados = $conn->getAthlete($_POST['user']);
-		$count = $conn->rowCount();
-		
+		$dados = $db->getAthlete($_POST['user']);
+		$count = $db->rowCount();
 		//print_r($dados);
 		
 		$fname = $dados['firstname'];
@@ -28,10 +27,80 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		$cpf = $dados['cpf'];
 		$status = $dados['status'];
 		$gender = $dados['gender'];
+		$id_association = $dados['id_association'];
 	}
+}
+
+$err = 0;
+if ($_POST['action'] == 'save') {
+	if ($_POST['user']) { $user = $_POST['user']; } else { $user = $_POST['email']; }
+	
+	$date = str_replace('/', '-', $_POST['bdate']);
+	$date = date('Y-m-d', strtotime($date));
+	
+	$u = array(
+						 'uname' => $_POST['email'],
+						 'id_user' => $user,
+						 'fname' => $_POST['fname'],
+						 'lname' => $_POST['lname'],
+						 'email' => $_POST['email'],
+						 'bdate' => $date,
+						 'rg' => $_POST['rg'],
+						 'cpf' => $_POST['cpf'],
+						 'id_association' => $_POST['id_association'],
+						 'status' => $_POST['status'],
+						 'gender' => $_POST['gender'],
+						 'id_event' => $_POST['id_event']
+						 );
+
+	$fname = $_POST['fname'];
+	$lname = $_POST['lname'];
+	$email = $_POST['email'];
+	$birthdate = $_POST['bdate'];
+	$rg = $_POST['rg'];
+	$cpf = $_POST['cpf'];
+	$status = $_POST['status'];
+	$gender = $_POST['gender'];
+	$id_association = $_POST['id_association'];
+
+  $errmsg = '';
+	if ($u['fname'] == '') { 
+		$err = 1; 
+		$errmsg .= 'O campo Nome é requerido.<br />';
+	} 
+	if ($u['lname'] == '') { 
+		$err = 1; 
+		$errmsg .= 'O campo Sobrenome é requerido.<br />';
+	} 
+	if ($u['email'] == '') { 
+		$err = 1; 
+		$errmsg .= 'O campo Email é requerido.<br />';
+	} elseif (!filter_var($u['email'], FILTER_VALIDATE_EMAIL)) {
+		$err = 1; 
+		$errmsg .= 'Você deve informar um email válido.<br />';
+	}
+	if ($u['bdate'] == '') { 
+		$err = 1; 
+		$errmsg .= 'O campo Data de Nascimento é requerido.<br />';
+	} elseif (!preg_match('/(0[1-9]|[12][0-9]|3[01])[\/.](0[1-9]|1[012])[\/.](19|20)\d\d/', $_POST['bdate'])) {
+		$err = 1; 
+		$errmsg .= 'O formato da Data de Nascimento '. $_POST['bdate'] .' é inválido, informe no formato dd/mm/aaaa.<br />';
+	}
+	if ($u['gender'] == '') { 
+		$err = 1; 
+		$errmsg .= 'O campo Sexo é requerido.<br />';
+	} 
+	
+	if ($errmsg <> '') {
+		echo '<div class="btn btn-danger mbl">'. $errmsg .'</div>';
+	}
+}
+
+if ($_POST['action'] == 'new' || $_POST['action'] == 'edit' || $err > 0) {
 	?>
 	<form method="post" action="atletas.php">
 	  <input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>" />
+	  <input type="hidden" name="id_event" value="2" />
 
 		<?php if (($_POST['action'] == 'new' || $_POST['action'] == 'edit') && $_COOKIE['jimeluser']['profile'] < 3) { ?>
 		<input type="hidden" name="id_association" value="<?php echo $_COOKIE['jimeluser']['association']; ?>" />
@@ -50,9 +119,8 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 
 		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
 		<p class="mbl"><select name="id_association" class="form-control"><option>< Selecione uma entidade ></option><?php
-			$conne = new Database();
-			$ents = $conne->getEntities();
-		  for ($i = 0; $i < $conne->rowCount(); $i++) {
+			$ents = $db->getEntities();
+		  for ($i = 0; $i < $db->rowCount(); $i++) {
 				$chk = '';
 				if (isset($dados['id_association']) && ($ents[$i]['id_association'] == $dados['id_association'])) {
 					$chk = 'selected';
@@ -61,10 +129,15 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 			} ?></select></p>
 		<?php } ?>
 
+		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
 		<p class="mbl clearfix">
 			<label class="radio pull-left"><input type="radio" name="status" value="1" data-toggle="radio" <?php if ($status == 1) { echo "checked";} ?>>Ativo</label>
 			<label class="radio pull-left mll"><input type="radio" name="status" value="2" data-toggle="radio" <?php if ($status == 0) { echo "checked";} ?>>Inativo</label>
 		</p>
+		<?php } else { ?>
+		<input type="hidden" name="status" value="<?php echo $status; ?>" />
+		<?php } ?>
+		
 		<button type="submit" class="btn btn-primary btn-sm mrm pull-left" name="action" value="save">Salvar</button>
 	</form>
 	<form class="pull-right" method="post" action="atletas.php">
@@ -75,46 +148,12 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 	</form>
 	<?php
 }
-if ($_POST['action'] == 'save' && $_POST['id_user'] > 0) {
-	$date = str_replace('/', '-', $_REQUEST['bdate']);
-	$date = date('Y-m-d', strtotime($date));
-	
-	$u = array(
-						 'id_user' => $_REQUEST['id_user'],
-						 'fname' => $_REQUEST['fname'],
-						 'lname' => $_REQUEST['lname'],
-						 'email' => $_REQUEST['email'],
-						 'bdate' => $date,
-						 'rg' => $_REQUEST['rg'],
-						 'cpf' => $_REQUEST['cpf'],
-						 'id_association' => $_REQUEST['id_association'],
-						 'status' => $_REQUEST['status'],
-						 'gender' => $_REQUEST['gender']
-						 );
-	include_once('connect.php');
-	$conn = new Database();
-	$dados = $conn->updAthlete($u);
+if ($err <= 0 && $_POST['action'] == 'save' && $_POST['id_user'] > 0) {
+	$dados = $db->updAthlete($u);
 	echo "<meta http-equiv='refresh' content='0; url=/atletas.php?h=". $_REQUEST['id_user'] ."'>";
 }
-elseif ($_POST['action'] == 'save') {
-	$date = str_replace('/', '-', $_REQUEST['bdate']);
-	$date = date('Y-m-d', strtotime($date));
-	
-	$u = array(
-						 'uname' => $_REQUEST['email'],
-						 'fname' => $_REQUEST['fname'],
-						 'lname' => $_REQUEST['lname'],
-						 'email' => $_REQUEST['email'],
-						 'bdate' => $date,
-						 'rg' => $_REQUEST['rg'],
-						 'cpf' => $_REQUEST['cpf'],
-						 'id_association' => $_REQUEST['id_association'],
-						 'status' => $_REQUEST['status'],
-						 'gender' => $_REQUEST['gender']
-						 );
-	include_once('connect.php');
-	$conn = new Database();
-	$dados = $conn->addAthlete($u);
+elseif ($err <= 0 && $_POST['action'] == 'save') {
+	$dados = $db->addAthlete($u);
 	echo "<meta http-equiv='refresh' content='0; url=/atletas.php?h=". $dados ."'>";
 }
 

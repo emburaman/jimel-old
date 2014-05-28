@@ -78,7 +78,7 @@ $count = $conn->rowCount();
 		echo "<span class='btn btn-warning'>Não existe nenhum atleta disponível para ser escalado para esta equipe.</span>";
 	}
 	for ($i=0;$i<$counta;$i++) {
-		echo '<label class="checkbox" for="'. $dadosa[$i]['id_athlete'] .'"><input type="checkbox" value="'. $dadosa[$i]['id_athlete'] .'" name="athlete['. $dadosa[$i]['id_athlete'] .']" data-toggle="checkbox">'. $dadosa[$i]['firstname'] .' <sup>'. $dadosa[$i]['age'] .'</sup></label>'; 
+		echo '<label class="checkbox" for="'. $dadosa[$i]['id_athlete'] .'"><input type="checkbox" value="'. $dadosa[$i]['id_athlete'] .'" name="athlete['. $dadosa[$i]['id_athlete'] .']" data-toggle="checkbox">'. $dadosa[$i]['firstname'] .' '. $dadosa[$i]['lastname'] .' <sup>'. $dadosa[$i]['age'] .'</sup></label>'; 
 	} 
 	
 	if ($counta > 0) {?>
@@ -101,7 +101,7 @@ $count = $conn->rowCount();
 		echo "<span class='btn btn-info'>Não existe nenhum atleta escalado para esta equipe.</span>";
 	}
 	for ($i=0;$i<$counts;$i++) { 
-		echo '<label class="escalado checkbox" for="'. $dadoss[$i]['id_athlete'] .'"><input type="checkbox" value="'. $dadoss[$i]['id_subscription'] .'" name="subscription['. $i .']" data-toggle="checkbox">'. $dadoss[$i]['firstname'] .' <sup>'. $dadoss[$i]['age'] .'</sup></label>'; 
+		echo '<label class="escalado checkbox" for="'. $dadoss[$i]['id_athlete'] .'"><input type="checkbox" value="'. $dadoss[$i]['id_subscription'] .'" name="subscription['. $i .']" data-toggle="checkbox">'. $dadoss[$i]['firstname'] .' '. $dadoss[$i]['lastname'] .' <sup>'. $dadoss[$i]['age'] .'</sup></label>'; 
 	} 
 	if ($counts > 0) {?>
 		<input type="submit" class="btn btn-primary btn-wide mrm pull-right desescalar" disabled="disabled" value="Remover"/>

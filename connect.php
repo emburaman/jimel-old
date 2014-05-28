@@ -1,17 +1,10 @@
 <?php
-class Database {
-	private $host    = 'localhost';
-	//private $dbname  = 'jimel';
-	private $dbname  = 'jimeltest01';
-	private $user    = 'root';
-	private $pass    = '';
+include_once('dbvariables.php');
+
+class Database extends dbVariables {
 	private $dbh;
 	private $error;
 	private $stmt;
-
-	/* EC2 CREDENTIALS */
-	//private $pass    = '$marmita@1';
-	
 
 	public function __construct(){
 		// Set DSN
@@ -198,8 +191,8 @@ class Database {
 	}
 	
 	public function addAthlete($u = array()) {
-		$this->query('INSERT INTO es_user (user_name, password, firstname, lastname, email, birthdate, profile, status, rg, cpf, gender) 
-		VALUES (:user, :pwd, :fname, :lname, :email, :bdate, :profile, :status, :rg, :cpf, :gender)');
+		$this->query('INSERT INTO es_user (user_name, password, firstname, lastname, email, birthdate, profile, status, rg, cpf, gender, id_association) 
+		VALUES (:user, :pwd, :fname, :lname, :email, :bdate, :profile, :status, :rg, :cpf, :gender, :id_association)');
 		$this->bind(':user', $u['uname']);
 		$this->bind(':pwd', sha1($u['uname']));
 		$this->bind(':fname', $u['fname']);
@@ -211,13 +204,15 @@ class Database {
 		$this->bind(':rg', $u['rg']);
 		$this->bind(':cpf', $u['cpf']);
 		$this->bind(':gender', $u['gender']);
+		$this->bind(':id_association', $u['id_association']);
 		
 		if ($this->execute()) {
 			$uid = $this->lastInsertId();
 			
-			$this->query('INSERT INTO es_athlete (id_user, id_association, status) VALUES (:id_user, :id_assoc, :status)');
+			$this->query('INSERT INTO es_athlete (id_user, id_association, id_event, status) VALUES (:id_user, :id_assoc, :id_event, :status)');
 			$this->bind(':id_user', $uid);
 			$this->bind(':id_assoc', $u['id_association']);
+			$this->bind(':id_event', $u['id_event']);
   		$this->bind(':status', $u['status']);
 			
 			$this->execute();
@@ -226,7 +221,7 @@ class Database {
 	}
 
 	public function updAthlete($u = array()) {
-		$this->query('UPDATE es_user SET firstname=:fname, lastname=:lname, email=:email, birthdate=:bdate, status=:status, rg=:rg, cpf=:cpf, gender=:gender WHERE id_user=:id_user');
+		$this->query('UPDATE es_user SET firstname=:fname, lastname=:lname, email=:email, birthdate=:bdate, status=:status, rg=:rg, cpf=:cpf, gender=:gender, id_association=:id_association WHERE id_user=:id_user');
 		
 		$this->bind(':id_user', $u['id_user']);
 		$this->bind(':fname', $u['fname']);
@@ -237,6 +232,7 @@ class Database {
 		$this->bind(':rg', $u['rg']);
 		$this->bind(':cpf', $u['cpf']);
 		$this->bind(':gender', $u['gender']);
+		$this->bind(':id_association', $u['id_association']);
 		
 		$this->execute();
 		return true;
@@ -376,15 +372,16 @@ class Database {
 	}
 	
 	public function getSubscribed($id_team, $id_event) {
-		$this->query('SELECT * FROM vw_subscriptions WHERE id_team ='. $id_team .' AND id_event = '. $id_event);
+		$qry = 'SELECT * FROM vw_subscriptions WHERE id_subscription IS NOT NULL AND id_team ='. $id_team .' AND id_event = '. $id_event;
+		$this->query($qry);
 		$rows = $this->resultset();
 		return $rows;
 	}
 	
 	public function getAvailable($id_association, $id_event, $min = null, $max = null, $id_cat = null) {
-		$this->query('SELECT * FROM vw_subscriptions WHERE id_association = '. $id_association .' AND id_event = '. $id_event);
+		$qry = 'SELECT * FROM vw_subscriptions WHERE id_subscription IS NOT NULL AND id_association = '. $id_association .' AND id_event = '. $id_event;
+		$this->query($qry);
 		$atls = $this->resultset();
-
 		$w = '';
 		if ($min > 0) {
 			$w .= ' AND age >= '. $min;
@@ -392,9 +389,11 @@ class Database {
 		if ($max > 0) {
 			$w .= ' AND age <= '. $max;
 		}
+		/*
 		if ($id_cat != null) {
 			$w .= ' AND id_category = '. $id_cat;
 		}
+		*/
 		if ($this->rowCount() > 0) {
 			$w .= ' AND id_athlete NOT IN (';
 			for ($i = 0; $i < $this->rowCount(); $i++) {

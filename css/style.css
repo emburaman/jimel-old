@@ -151,3 +151,10 @@ table.classificacao td.sm.highlight {
 span.btn {
   white-space: normal;
 }
+
+.team-color {
+	cursor: default;
+}
+.mandatory {
+  color: #F00;
+}
