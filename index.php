@@ -99,12 +99,14 @@ include_once('header.php');
 	</div>
 </div>
 
+<!--
 <div class="col-lg-4 col-md-4 col-xs-12 pull-right">
 	<div class="">
 		<h4>Como usar o sistema</h4>
 		<iframe width="100%" height="208" src="//www.youtube.com/embed/yWe0PxUEVoc" frameborder="0" allowfullscreen></iframe>
 	</div>
 </div>
+-->
 
 <?php
 include_once('bottom.php');
