@@ -309,21 +309,22 @@ class Database extends dbVariables {
 	}
 	
 	public function addTeams($u = array()) {
-		$this->query('INSERT INTO es_team (name, id_association, id_category, jersey_main_color, id_event, status) 
-		VALUES (:name, :id_association, :id_category, :color, :id_event, :status)');
+		$this->query('INSERT INTO es_team (name, id_association, id_category, jersey_main_color, id_event, status, id_group) 
+		VALUES (:name, :id_association, :id_category, :color, :id_event, :status, :id_group)');
 		$this->bind(':name', $u['name']);
 		$this->bind(':id_association', $u['id_association']);
 		$this->bind(':id_category', $u['id_category']);
 		$this->bind(':id_event', $u['id_event']);
 		$this->bind(':color', $u['color']);
 		$this->bind(':status', $u['status']);
+		$this->bind(':id_group', $u['id_group']);
 		
 		$this->execute();
 		return $this->lastInsertId();
 	}
 
 	public function updTeam($u = array()) {
-		$this->query('UPDATE es_team SET name=:name, id_association=:id_association, id_category=:id_category, jersey_main_color=:color, id_event=:id_event, status=:status WHERE id_team=:id_team');
+		$this->query('UPDATE es_team SET name=:name, id_association=:id_association, id_category=:id_category, jersey_main_color=:color, id_event=:id_event, status=:status, id_group=:id_group WHERE id_team=:id_team');
 		
 		$this->bind(':id_team', $u['id_team']);
 		$this->bind(':name', $u['name']);
@@ -332,6 +333,7 @@ class Database extends dbVariables {
 		$this->bind(':id_event', $u['id_event']);
 		$this->bind(':color', $u['color']);
 		$this->bind(':status', $u['status']);
+		$this->bind(':id_group', $u['id_group']);
 		
 		$this->execute();
 		return true;

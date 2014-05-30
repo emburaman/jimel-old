@@ -26,6 +26,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		$category       = $dados['id_category'];
 		$color          = $dados['color'];
 		$status         = $dados['status'];
+		$group          = $dados['group'];
 		$id_association = $dados['entity_id'];
 		
 		/* Check if there is any athlete subscribed */
@@ -94,6 +95,23 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		} else {
 			echo '<input type="hidden" name="id_event" value="2" />';
 		} ?>
+    
+		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
+		<p class="mbl"><select name="id_group" class="form-control"><option>< Selecione um Grupo ></option><?php
+			$db->query('SELECT * FROM es_group WHERE id_category = '. $dados['id_category']);
+      $gp = $db->resultset();
+      p($dados['group']);
+		  for ($i = 0; $i < $db->rowCount(); $i++) {
+				$chk = '';
+				if (isset($dados['group']) && ($gp[$i]['id_group'] == $dados['group'])) {
+					$chk = 'selected';
+				}
+				echo "<option value='". $gp[$i]['id_group'] ."' $chk>". $gp[$i]['id_group'] ."</option>";
+			} ?></select></p>
+		<?php
+		} else {
+			echo '<input type="hidden" name="id_group" value="'. $dados['group'] .'" />';
+		} ?>
 
 		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
 		<p class="mbl clearfix">
@@ -123,12 +141,10 @@ if ($_POST['action'] == 'save' && $_POST['id_team'] > 0) {
 						 'id_category'    => $_REQUEST['id_category'],
 						 'id_association' => $_REQUEST['id_association'],
 						 'id_event'       => $_REQUEST['id_event'],
+						 'id_group'       => $_REQUEST['id_group'],
 						 'status'         => $_REQUEST['status'],
 						 );
-
-	include_once('connect.php');
-	$conn = new Database();
-	$dados = $conn->updTeam($u);
+	$dados = $db->updTeam($u);
 	echo "<meta http-equiv='refresh' content='0; url=/equipes.php?h=". $_REQUEST['id_team'] ."'>";
 }
 elseif ($_POST['action'] == 'save') {
@@ -138,11 +154,10 @@ elseif ($_POST['action'] == 'save') {
 						 'id_category'    => $_REQUEST['id_category'],
 						 'id_association' => $_REQUEST['id_association'],
 						 'id_event'       => $_REQUEST['id_event'],
+						 'id_group'       => $_REQUEST['id_group'],
 						 'status'         => $_REQUEST['status'],
 						 );
-	include_once('connect.php');
-	$conn = new Database();
-	if ($conn->chkTeams($u['id_category'], $u['name'], $u['id_event'])) { ?>
+	if ($db->chkTeams($u['id_category'], $u['name'], $u['id_event'])) { ?>
 		<h1>Nova Equipe</h1>
 		<div class="btn btn-warning mbl">Já existe uma equipe chamada <strong><?php echo $u['name']; ?></strong> nesta categoria para sua igreja. Verifique a lista de equipes e tente novamente.</div>
 		<div class="clearfix">
@@ -151,7 +166,7 @@ elseif ($_POST['action'] == 'save') {
 	
 	<?php	
 	} else {	
-		$dados = $conn->addTeams($u);
+		$dados = $db->addTeams($u);
 		echo "<meta http-equiv='refresh' content='0; url=/equipes.php?h=". $dados ."'>";
 	}
 }
@@ -172,8 +187,7 @@ if ($_POST['action'] == 'del') { ?>
 }
 
 if ($_POST['action'] == 'del_yes') {
-	$conn = new Database();
-	$dados = $conn->delTeam($_POST['id_team']);
+	$dados = $db->delTeam($_POST['id_team']);
 	echo "<meta http-equiv='refresh' content='0; url=/equipes.php'>";
 }
 
@@ -181,15 +195,12 @@ if (empty($_POST)) {
 	/* List athletes */
 	echo "<form class='pull-right' method='post' action='equipes.php'><button class='btn btn-primary' name='action' value='new'><span class='fui-plus'></span> Adicionar Equipe</button></form>";
 	echo "<h1>Equipes</h1>";
-	include_once('connect.php');
-	$conn = new Database();
 	if ($_COOKIE['jimeluser']['profile'] < 3) {
-	  $dados = $conn->getTeams($_COOKIE['jimeluser']['association'], 2, null);
+	  $dados = $db->getTeams($_COOKIE['jimeluser']['association'], 2, null);
 	} else {
-	  //$dados = $conn->getTeams();
-	  $dados = $conn->getTeams(null, 2, null);
+	  $dados = $db->getTeams(null, 2, null);
 	}
-	$count = $conn->rowCount();
+	$count = $db->rowCount();
 	?>
 	<table class="table table-striped table-hover table-condensed">
 		<thead>

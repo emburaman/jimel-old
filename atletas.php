@@ -43,8 +43,8 @@ if ($_POST['action'] == 'save') {
 	$date = date('Y-m-d', strtotime($date));
 	
 	$u = array(
-						 'uname' => $_POST['email'],
-						 'id_user' => $user,
+						 'uname' => $user,
+						 'id_user' => $_POST['id_user'],
 						 'fname' => $_POST['fname'],
 						 'lname' => $_POST['lname'],
 						 'email' => $_POST['email'],
