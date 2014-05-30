@@ -184,7 +184,7 @@ class Database extends dbVariables {
 	}
 
 	public function getAthlete($u) {
-		$this->query('SELECT * FROM es_user WHERE id_user = :uname');
+		$this->query('SELECT * FROM vw_athletes WHERE id_user = :uname');
 		$this->bind(':uname', $u);
 		$row = $this->single();
 		return $row;
@@ -239,9 +239,14 @@ class Database extends dbVariables {
 	}
 
 	public function delAthlete($id) {
+		$this->query('SELECT id_athlete FROM es_athlete WHERE id_user ='. $id);
+		$row = $this->resultset();
+		$ida = $row[0]['id_athlete'];
 		$this->query('DELETE FROM es_user WHERE id_user ='. $id);
 		$this->execute();
 		$this->query('DELETE FROM es_athlete WHERE id_user ='. $id);
+		$this->execute();
+		$this->query('DELETE FROM es_subscription WHERE id_athlete ='. $ida);
 		$this->execute();
 		return true;
 	}
@@ -372,15 +377,19 @@ class Database extends dbVariables {
 	}
 	
 	public function getSubscribed($id_team, $id_event) {
-		$qry = 'SELECT * FROM vw_subscriptions WHERE id_subscription IS NOT NULL AND id_team ='. $id_team .' AND id_event = '. $id_event;
+		$qry = 'SELECT * FROM vw_subscriptions WHERE id_subscription IS NOT NULL AND id_team = :id_team AND id_event = :id_event';
 		$this->query($qry);
+		$this->bind(':id_team',  $id_team);
+		$this->bind(':id_event', $id_event);
 		$rows = $this->resultset();
 		return $rows;
 	}
 	
-	public function getAvailable($id_association, $id_event, $min = null, $max = null, $id_cat = null) {
-		$qry = 'SELECT * FROM vw_subscriptions WHERE id_subscription IS NOT NULL AND id_association = '. $id_association .' AND id_event = '. $id_event;
+	public function getAvailable($id_association, $id_event, $min = null, $max = null, $id_cat = null, $gender = null) {
+		$qry = 'SELECT * FROM vw_subscriptions WHERE id_subscription IS NOT NULL AND id_association = :id_association AND id_event = :id_event';
 		$this->query($qry);
+		$this->bind(':id_association',  $id_association);
+		$this->bind(':id_event', $id_event);
 		$atls = $this->resultset();
 		$w = '';
 		if ($min > 0) {
@@ -388,6 +397,9 @@ class Database extends dbVariables {
 		}
 		if ($max > 0) {
 			$w .= ' AND age <= '. $max;
+		}
+		if ($gender != null) {
+			$w .= " AND gender = '$gender'";
 		}
 		/*
 		if ($id_cat != null) {

@@ -28,6 +28,10 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		$status = $dados['status'];
 		$gender = $dados['gender'];
 		$id_association = $dados['id_association'];
+		
+		$id_subscription = $dados['id_subscription'];
+		$id_team = $dados['id_team'];
+		$team_name = $dados['team_name'];
 	}
 }
 
@@ -137,14 +141,20 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit' || $err > 0) {
 		<?php } else { ?>
 		<input type="hidden" name="status" value="<?php echo $status; ?>" />
 		<?php } ?>
-		
+		<?php if ($id_subscription == '') { ?>
 		<button type="submit" class="btn btn-primary btn-sm mrm pull-left" name="action" value="save">Salvar</button>
 	</form>
+		<?php } ?>
+		<?php if ($id_subscription != '') { ?></form>
+		<form class='pull-left' method='post' action='escalacao.php'><input type='hidden' name='action' value='edit' /><p class="small pull-left">Este atleta já está inscrito na equipe <button class="btn btn-default btn-xs" name="id_team" value="<?php echo $id_team; ?>"><?php echo $team_name; ?></button><br />Para alterar os dados cadastrais, primeiro remova-o da equipe.</p></form>
+		<?php } ?>
 	<form class="pull-right" method="post" action="atletas.php">
+	<?php if ($_POST['action'] == 'edit') { ?>
 		<input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>">
-		<input type="hidden" name="action" value="del">
 		<input type="hidden" name="name" value="<?php echo $fname ." ". $lname; ?>">
-		<input type="submit"  class="btn btn-danger btn-sm pull-right" value="Excluir"/>
+		<button name="action" class="btn btn-danger btn-sm pull-right mll" value="del">Excluir</button>
+	<?php } ?>
+		<button name="action" class="btn btn-default btn-sm pull-right" value="back">Voltar</button>
 	</form>
 	<?php
 }
@@ -159,7 +169,8 @@ elseif ($err <= 0 && $_POST['action'] == 'save') {
 
 if ($_POST['action'] == 'del') { ?>
 	<h1>Excluir Atleta</h1>
-	<div class="btn btn-danger mbl">Deseja realmente excluir o atleta <strong><?php echo $_POST['name']; ?></strong>?</div>
+	<div class="btn btn-danger mbl">Deseja realmente excluir o atleta <strong><?php echo $_POST['name']; ?></strong>? Isso não poderá ser desfeito!<br />
+Caso este atleta esteja escalado em alguma equipe, sua escalação também será removida.</div>
 	<div class="clearfix">
 	<input type="submit"  class="btn btn-default btn-wide pull-left" value="Não" onclick="javascript:history.back(-1);"/>
 	<form class="pull-right" method="post" action="atletas.php">
@@ -173,24 +184,20 @@ if ($_POST['action'] == 'del') { ?>
 }
 
 if ($_POST['action'] == 'del_yes') {
-	print_r($_POST);
-	$conn = new Database();
-	$dados = $conn->delAthlete($_POST['id_user']);
+	$dados = $db->delAthlete($_POST['id_user']);
 	echo "<meta http-equiv='refresh' content='0; url=/atletas.php'>";
 }
 
-if (empty($_POST)) {
+if (empty($_POST) || $_POST['action'] == 'back') {
 	/* List athletes */
 	echo "<form class='pull-right' method='post' action='atletas.php'><button class='btn btn-primary btn-sm' name='action' value='new'><span class='fui-plus'></span> Novo Atleta</button></form>";
 	echo "<h1>Atletas</h1>";
-	include_once('connect.php');
-	$conn = new Database();
 	if ($_COOKIE['jimeluser']['profile'] < 3) {
-	  $dados = $conn->getAthletes($_COOKIE['jimeluser']['association']);
+	  $dados = $db->getAthletes($_COOKIE['jimeluser']['association']);
 	} else {
-		$dados = $conn->getAthletes();
+		$dados = $db->getAthletes();
 	}
-	$count = $conn->rowCount();
+	$count = $db->rowCount();
 	?>
 	<table class="table table-striped table-hover table-condensed">
 		<thead>
@@ -200,6 +207,7 @@ if (empty($_POST)) {
 				<th class='mobile-hidden'>Email</th>
 				<th class='mobile-hidden'>Data de Nascimento</th>
 				<th>Idade</th>
+				<th>Sexo</th>
 				<th></th>
 			</tr>
 		</thead>
@@ -216,6 +224,7 @@ if (empty($_POST)) {
 			$newDate = date("d-m-Y", strtotime($dados[$i]['birthdate']));
 			echo "<td class='mobile-hidden'>$newDate</td>";
 			echo "<td>". $dados[$i]['age'] ."</td>";
+			echo "<td>". $dados[$i]['gender'] ."</td>";
 			echo "<td><button class='btn btn-primary btn-xs' name='user' value='". $dados[$i]['id_user'] ."'><span class='fui-new'></span> Editar</button></td>";		
 			echo "</tr>";
 		}

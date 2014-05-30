@@ -1,4 +1,4 @@
-<div id="screen-size"></div>
+			<!-- <div id="screen-size"></div> -->
 		</div>
     <!-- /.container -->
 
@@ -37,12 +37,14 @@
 				$('#colorpicker').farbtastic('#color');
 
       });
-
+			
+			/*
       $(window).resize(function() {
         var largura = $(document).width();
         var altura  = $(document).height();
         $('#screen-size').text(largura +'x'+ altura);
       });
+			*/
 		</script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

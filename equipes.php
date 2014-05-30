@@ -6,6 +6,7 @@ if (!isset($_COOKIE['jimeluser'])) {
 }
 
 include_once('connect.php');
+$db = new Database();
 
 /* New/Edit athlete */
 if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
@@ -19,15 +20,17 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		echo "<a class='btn btn-default btn-wide pull-right' href='equipes.php'/>Voltar</a>
 		      <h1>Editando Equipe</h1>"; 
 		
-		$conn = new Database();
-		$dados = $conn->getTeam($_POST['id_team']);
-		$count = $conn->rowCount();
-
+		$dados = $db->getTeam($_POST['id_team']);
+		$count = $db->rowCount();
 		$name           = $dados['team_name'];
 		$category       = $dados['id_category'];
 		$color          = $dados['color'];
 		$status         = $dados['status'];
 		$id_association = $dados['entity_id'];
+		
+		/* Check if there is any athlete subscribed */
+		$any = $db->getSubscribed($dados['id'], $dados['id_event']);
+		$any = $db->rowCount();
 	}
 	?>
 	<form method="post" action="equipes.php">
@@ -57,7 +60,14 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 			} ?></select></p>
 		<?php } ?>
 
-		<p class="mbl"><select name="id_category" class="form-control"><option>< Selecione uma categoria ></option><?php
+		<p class="mbl"><?php
+		if ($any > 0) {
+			$dis = ' disabled="disabled"';
+			$msg = '<p class="small">Existe pelo menos um atleta inscrito nesta equipe; para alterar a categoria, primeiro remova os atletas.</p>'; ?>
+		<input type="hidden" name="id_category" value="<?php echo $dados['id_category']; ?>" />
+		<?php } ?>
+		<select name="id_category" class="form-control" <?php echo $dis; ?>>
+			<option>< Selecione uma categoria ></option><?php
 			$connc = new Database();
 			$cats = $connc->getCategories();
 		  for ($i = 0; $i < $connc->rowCount(); $i++) {
@@ -66,7 +76,8 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 					$chk = 'selected';
 				}
 				echo "<option value='". $cats[$i]['id_category'] ."' $chk>". $cats[$i]['name'] ."</option>";
-			} ?></select></p>
+			} ?></select>
+			<?php echo $msg; ?></p>
 
 		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
 		<p class="mbl"><select name="id_event" class="form-control"><option>< Selecione um evento ></option><?php
