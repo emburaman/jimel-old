@@ -520,14 +520,16 @@ class Database extends dbVariables {
 		return $this->lastInsertId();
 	}
 	
-	private function combo($arr) {
+	public function combo($arr) {
 		$count = count($arr);
 		$combo = array();
 		$id = 0;
 		
+    $s = 0;
 		for ($i = 0; $i < $count; $i++) {
 			for ($x = $i+1; $x < $count; $x++) {
-				$combo[$id] = array ('Team A' => $arr[$i], 'Team B' => $arr[$x]);
+        $s++;
+				$combo[$id] = array ('Team A' => $arr[$i], 'Team B' => $arr[$x], 'Sequence' => $s);
 				$id++;
 			}
 		}
