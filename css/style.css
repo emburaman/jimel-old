@@ -162,3 +162,6 @@ p.small {
 	color: #CCC;
 	line-height: 120%;
 }
+strong {
+	font-weight: 900;
+}

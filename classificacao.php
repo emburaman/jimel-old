@@ -31,17 +31,18 @@ if (empty($_POST)) {
 			<tr>
 				<th width="1">#</th>
 				<th>Equipe</th>
-				<th class="sm">Grupo</th>
-				<th class="sm">Pontos</th>
-				<th class="sm">Jogos</th>
-				<th class="sm">Vitórias</th>
-				<th class="sm">Empates</th>
-				<th class="sm">Derrotas</th>
-				<th class="sm">Gols Marcados</th>
-				<th class="sm">Gols Sofridos</th>
-				<th class="sm">Cartões Vermelhos</th>
-				<th class="sm">Cartões Amarelos</th>
-				<th class="sm">Faltas</th>
+				<th class="sm">G</th>
+				<th class="sm">P</th>
+				<th class="sm">J</th>
+				<th class="sm">V</th>
+				<th class="sm">E</th>
+				<th class="sm">D</th>
+				<th class="sm">SG</th>
+				<th class="sm">GP</th>
+				<th class="sm">GC</th>
+				<th class="sm">CV</th>
+				<th class="sm">CA</th>
+				<th class="sm">F</th>
 			</tr>
 		</thead>
 	
@@ -60,6 +61,7 @@ if (empty($_POST)) {
 				<td class="sm"><?php echo $stand[$s]['wins']; ?></td>
 				<td class="sm"><?php echo $stand[$s]['draws']; ?></td>
 				<td class="sm"><?php echo $stand[$s]['losses']; ?></td>
+				<td class="sm"><?php echo $stand[$s]['goals_balance']; ?></td>
 				<td class="sm"><?php echo $stand[$s]['goals_for']; ?></td>
 				<td class="sm"><?php echo $stand[$s]['goals_against']; ?></td>
 				<td class="sm"><?php echo $stand[$s]['reds']; ?></td>

@@ -92,8 +92,38 @@ class Database extends dbVariables {
 	/*
 	 * Auxiliary methods
 	 */
+	 
+	public function getAssociation($a = null) {
+		$w = '';
+		if ($a != null) { $w = "WHERE a.id_association = $a"; }
+		$qry = "SELECT a.id_association, a.name, a.id_parent_association, a.type, p.name AS parent FROM es_association AS a LEFT JOIN es_association AS p ON p.id_association = a.id_parent_association $w";
+		$this->query($qry);
+		$rows = $this->resultset();
+		return $rows;
+	}
+	
+	public function addAssociation($a) {
+	}
+	
+	public function updAssociation($a) {
+		$qry = 'UPDATE es_association SET name=:name, type=:type, id_parent_association=:id_parent_association WHERE id_association=:id_association';
+		$this->query($qry);
+		$this->bind('id_association', $a['id_association']);
+		$this->bind('name', $a['name']);
+		$this->bind('type', $a['type']);
+		$this->bind('id_parent_association', $a['id_parent_association']);
+		$this->execute();
+		return true;
+	}
+	
+	public function delAssociation($a) {
+		$this->query('DELETE FROM es_association WHERE id_association = $a');
+		$this->execute();
+		return true;
+	}
+	
 	public function getUser($u, $p) {
-		$this->query('SELECT * FROM es_user WHERE user_name = :uname AND password = :pword');
+		$this->query('SELECT u.*, a.name AS igreja FROM es_user AS u LEFT JOIN es_association As a ON u.id_association = a.id_association WHERE user_name = :uname AND password = :pword');
 		$this->bind(':uname', $u);
 		$this->bind(':pword', sha1($p));
 		$row = $this->single();
@@ -209,8 +239,9 @@ class Database extends dbVariables {
 		if ($this->execute()) {
 			$uid = $this->lastInsertId();
 			
-			$this->query('INSERT INTO es_athlete (id_user, id_association, id_event, status) VALUES (:id_user, :id_assoc, :id_event, :status)');
+			$this->query('INSERT INTO es_athlete (id_user, jersey_num, id_association, id_event, status) VALUES (:id_user, :jersey_num, :id_assoc, :id_event, :status)');
 			$this->bind(':id_user', $uid);
+			$this->bind(':jersey_num', $u['jersey_num']);
 			$this->bind(':id_assoc', $u['id_association']);
 			$this->bind(':id_event', $u['id_event']);
   		$this->bind(':status', $u['status']);
@@ -221,8 +252,7 @@ class Database extends dbVariables {
 	}
 
 	public function updAthlete($u = array()) {
-		$this->query('UPDATE es_user SET firstname=:fname, lastname=:lname, email=:email, birthdate=:bdate, status=:status, rg=:rg, cpf=:cpf, gender=:gender, id_association=:id_association WHERE id_user=:id_user');
-		
+		$this->query('UPDATE es_user SET firstname=:fname, lastname=:lname, email=:email, birthdate=:bdate, status=:status, rg=:rg, cpf=:cpf, gender=:gender, id_association=:id_association WHERE id_user=:id_user');		
 		$this->bind(':id_user', $u['id_user']);
 		$this->bind(':fname', $u['fname']);
 		$this->bind(':lname', $u['lname']);
@@ -233,8 +263,13 @@ class Database extends dbVariables {
 		$this->bind(':cpf', $u['cpf']);
 		$this->bind(':gender', $u['gender']);
 		$this->bind(':id_association', $u['id_association']);
-		
 		$this->execute();
+		
+		$this->query('UPDATE es_athlete SET jersey_num = :jersey_num WHERE id_user = :id_user');
+		$this->bind(':jersey_num', $u['jersey_num']);
+		$this->bind(':id_user', $u['id_user']);
+		$this->execute();
+		
 		return true;
 	}
 
@@ -324,8 +359,8 @@ class Database extends dbVariables {
 	}
 
 	public function updTeam($u = array()) {
-		$this->query('UPDATE es_team SET name=:name, id_association=:id_association, id_category=:id_category, jersey_main_color=:color, id_event=:id_event, status=:status, id_group=:id_group WHERE id_team=:id_team');
-		
+		$qry = 'UPDATE es_team SET name=:name, id_association=:id_association, id_category=:id_category, jersey_main_color=:color, id_event=:id_event, status=:status, group_id=:id_group WHERE id_team=:id_team';
+		$this->query($qry);
 		$this->bind(':id_team', $u['id_team']);
 		$this->bind(':name', $u['name']);
 		$this->bind(':id_association', $u['id_association']);
@@ -358,10 +393,10 @@ class Database extends dbVariables {
 		return $row;
 	}
 
-	public function getCategories($e = null) {
+	public function getCategories($c = null) {
 		$w = '';
-		if ($e != null) {
-			$w = " WHERE id_category = $e";
+		if ($c != null) {
+			$w = " WHERE id_category = $c";
 		}
 		$this->query('SELECT * FROM es_category'. $w .' ORDER BY name ASC');
 		$row = $this->resultset();
@@ -379,7 +414,7 @@ class Database extends dbVariables {
 	}
 	
 	public function getSubscribed($id_team, $id_event) {
-		$qry = 'SELECT * FROM vw_subscriptions WHERE id_subscription IS NOT NULL AND id_team = :id_team AND id_event = :id_event';
+		$qry = 'SELECT * FROM vw_subscriptions WHERE id_subscription IS NOT NULL AND id_team = :id_team AND id_event = :id_event ORDER BY jersey_num ASC';
 		$this->query($qry);
 		$this->bind(':id_team',  $id_team);
 		$this->bind(':id_event', $id_event);
@@ -579,6 +614,7 @@ class Database extends dbVariables {
 								wins,
 								draws,
 								losses,
+								(goals_for - goals_against) AS goals_balance,
 								goals_for,
 								goals_against,
 								reds,
@@ -685,6 +721,7 @@ class Database extends dbVariables {
 										wins DESC , 
 										draws ASC , 
 										losses ASC , 
+										goals_balance DESC , 
 										goals_for DESC , 
 										goals_against ASC , 
 										reds ASC , 

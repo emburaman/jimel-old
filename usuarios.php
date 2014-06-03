@@ -42,16 +42,19 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		<?php if ($_POST['id_user']) {?>
 	  <input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>" />
 		<?php } ?>
+		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
 		<p class="mbl">
 			<label class="radio pull-left"><input type="radio" id="profile" name="profile" value="1" data-toggle="radio" <?php if ($profile == 1) { echo "checked";} ?> />Representante</label>
 			<label class="radio pull-left mll"><input type="radio" id="profile" name="profile" value="3" data-toggle="radio" <?php if ($profile == 3) { echo "checked";} ?> />Admin</label>
 		</p>
-
 		<p class="mbl clearfix right">
-    <?php 
-    ?>
 			<label class="checkbox pull-left"><input type="checkbox" id="staff" name="staff" value="1" data-toggle="checkbox" <?php if ($staff == 1) { echo "checked";} ?> />STAFF</label>
 		</p>
+		<?php } else { ?>
+	  <input type="hidden" id="profile" name="profile" value="<?php echo $profile; ?>" />
+	  <input type="hidden" id="staff" name="staff" value="<?php echo $staff; ?>" />
+    <?php }?>
+
 		<p class="mbl"><input type="text"     id="uname" name="uname" placeholder="User Name" class="form-control" <?php if ($_POST['id_user']) { print 'readonly="readonly"'; } ?> value="<?php echo $uname; ?>" /></p>
 		<p class="mbl"><input type="text"     id="fname" name="fname" placeholder="Nome" class="form-control" value="<?php echo $fname; ?>" /></p>
 		<p class="mbl"><input type="text"     id="lname" name="lname" placeholder="Sobrenome" class="form-control" value="<?php echo $lname; ?>" /></p>
@@ -81,18 +84,26 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 	  <input type="hidden" id="id_association" name="id_association" value="<?php echo $id_assoc; ?>" />
     <?php }?>
 
+		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
 		<p class="mbl clearfix">
 			<label class="radio pull-left"><input type="radio" id="status" name="status" value="1" data-toggle="radio" <?php if ($status == 1) { echo "checked";} ?>>Ativo</label>
 			<label class="radio pull-left mll"><input type="radio" id="status" name="status" value="2" data-toggle="radio" <?php if ($status == 0) { echo "checked";} ?>>Inativo</label>
 		</p>
+		<?php } else { ?>
+	  <input type="hidden" id="status" name="status" value="<?php echo $status; ?>" />
+    <?php }?>
+		
 		<button type="submit" class="btn btn-primary btn-sm mrm pull-left" name="action" value="save">Salvar</button>
 	</form>
+
+	<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
 	<form class="pull-right" method="post" action="usuarios.php">
 		<input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>">
 		<input type="hidden" name="action" value="del">
 		<input type="hidden" name="name" value="<?php echo $fname ." ". $lname; ?>">
 		<input type="submit"  class="btn btn-danger btn-sm pull-right" value="Excluir"/>
 	</form>
+  <?php }?>
 	<?php
 }
 if ($_POST['action'] == 'save' && $_POST['id_user'] > 0) {
@@ -115,8 +126,12 @@ if ($_POST['action'] == 'save' && $_POST['id_user'] > 0) {
 						 'gender' => $_REQUEST['gender'],
 						 'status' => $_REQUEST['status']
 						 );
-    $dados = $db->updUser($u);
-	echo "<meta http-equiv='refresh' content='0; url=usuarios.php'>";
+  $dados = $db->updUser($u);
+	if ($_COOKIE['jimeluser']['profile'] >= 3) {
+		echo "<meta http-equiv='refresh' content='0; url=usuarios.php'>";
+	} else {
+		echo "<meta http-equiv='refresh' content='0; url=index.php'>";
+	}
 }
 elseif ($_POST['action'] == 'save') {
 	$date = str_replace('/', '-', $_REQUEST['bdate']);

@@ -95,7 +95,7 @@ include_once('header.php');
 		<p><strong>Estrada Municipal do Carmo, 1201</strong><br>
 		Km 48 da Rodovia Bunjiro Nakao (Saída no km 45 da rodovia Raposo Tavares)<br>
 		Bairro do Carmo – Estância Turística de São Roque – SP – 18145-340</p>
-		<iframe src="https://www.google.com/maps/embed?pb=!1m22!1m12!1m3!1d29243.67923701699!2d-47.06273189999999!3d-23.623695299999966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m7!1i0!3e6!4m0!4m3!3m2!1d-23.6230379!2d-47.066190899999995!5e0!3m2!1spt-BR!2s!4v1400933269941" width="100%" height="280" frameborder="0" style="border:0"></iframe>
+		<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14621.914123543282!2d-47.0661944!3d-23.6230278!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDM3JzIyLjkiUyA0N8KwMDMnNTguMyJX!5e0!3m2!1spt-BR!2s!4v1401587153513" width="370" height="280" frameborder="0" style="border:0"></iframe>
 	</div>
 </div>
 

@@ -8,6 +8,43 @@ if (!isset($_COOKIE['jimeluser'])) {
 include_once('connect.php');
 $db = new Database();
 
+/* GENERATE MASS DATA */
+if ($_REQUEST['action'] == 'mass') { 
+	$start  = $_REQUEST['start_id'];
+	$amount = $_REQUEST['amount'];
+	
+	$ents = $db->getEntities();
+	$nume = $db->rowCount();
+	
+	for ($e = 1; $e < $nume; $e++) { 
+		for ($i = 0; $i < $amount; $i++) {
+			$curr_year = date('Y');
+			$dob_year  = rand($curr_year-7,$curr_year-55);
+			$dob_month = rand(01,12);
+			$dob_day   = rand(01,30);
+			$dob = $dob_year .'-'. str_pad($dob_month, 2, '0', STR_PAD_LEFT) .'-'. str_pad($dob_day, 2, '0', STR_PAD_LEFT);
+			
+			$u = array(
+								 'uname' => "atleta". sprintf("%05s", $start),
+								 'fname' => "Atleta",
+								 'lname' => sprintf("%05s", $start),
+								 'email' => "atleta". sprintf("%05s", $start) ."@jimel.com.br",
+								 'bdate' => $dob,
+								 'id_association' => $ents[$e]['id_association'],
+								 'gender' => 'M',
+								 'id_event' => 2,
+								 'status' => 1,
+								 'jersey_num' => rand(1, 12)
+								 );
+			$db->addAthlete($u);
+			$start++;
+		}
+	}
+	die("$start atletas criados.");
+}
+/* ################## */
+
+
 /* New/Edit athlete */
 if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 	$status = 1;
@@ -15,7 +52,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 	if ($_POST['action'] == 'edit') {
 		echo "<h1>Editando Atleta</h1>"; 
 		
-		$dados = $db->getAthlete($_POST['user']);
+		$dados = $db->getAthlete($_POST['id_user']);
 		$count = $db->rowCount();
 		//print_r($dados);
 		
@@ -28,6 +65,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		$status = $dados['status'];
 		$gender = $dados['gender'];
 		$id_association = $dados['id_association'];
+		$jersey_num = $dados['jersey_num'];
 		
 		$id_subscription = $dados['id_subscription'];
 		$id_team = $dados['id_team'];
@@ -37,13 +75,13 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 
 $err = 0;
 if ($_POST['action'] == 'save') {
-	if ($_POST['user']) { $user = $_POST['user']; } else { $user = $_POST['email']; }
+	if ($_POST['id_user']) { $user = $_POST['id_user']; } else { $user = $_POST['email']; }
 	
 	$date = str_replace('/', '-', $_POST['bdate']);
 	$date = date('Y-m-d', strtotime($date));
 	
 	$u = array(
-						 'uname' => $user,
+						 'uname' => $_POST['email'],
 						 'id_user' => $_POST['id_user'],
 						 'fname' => $_POST['fname'],
 						 'lname' => $_POST['lname'],
@@ -54,7 +92,8 @@ if ($_POST['action'] == 'save') {
 						 'id_association' => $_POST['id_association'],
 						 'status' => $_POST['status'],
 						 'gender' => $_POST['gender'],
-						 'id_event' => $_POST['id_event']
+						 'id_event' => $_POST['id_event'],
+						 'jersey_num' => $_POST['jersey_num']
 						 );
 
 	$fname = $_POST['fname'];
@@ -66,6 +105,7 @@ if ($_POST['action'] == 'save') {
 	$status = $_POST['status'];
 	$gender = $_POST['gender'];
 	$id_association = $_POST['id_association'];
+	$jersey_num = $_POST['jersey_num'];
 
   $errmsg = '';
 	if ($u['fname'] == '') { 
@@ -76,6 +116,13 @@ if ($_POST['action'] == 'save') {
 		$err = 1; 
 		$errmsg .= 'O campo Sobrenome é requerido.<br />';
 	} 
+	/*
+	if ($u['jersey_num'] == '') { 
+		$err = 1; 
+		$errmsg .= 'O número do atleta deve ser informado.<br />';
+	} 
+	*/
+	/*
 	if ($u['email'] == '') { 
 		$err = 1; 
 		$errmsg .= 'O campo Email é requerido.<br />';
@@ -83,6 +130,7 @@ if ($_POST['action'] == 'save') {
 		$err = 1; 
 		$errmsg .= 'Você deve informar um email válido.<br />';
 	}
+	*/
 	if ($u['bdate'] == '') { 
 		$err = 1; 
 		$errmsg .= 'O campo Data de Nascimento é requerido.<br />';
@@ -103,15 +151,16 @@ if ($_POST['action'] == 'save') {
 if ($_POST['action'] == 'new' || $_POST['action'] == 'edit' || $err > 0) {
 	?>
 	<form method="post" action="atletas.php">
-	  <input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>" />
+	  <input type="hidden" name="id_user" value="<?php echo $_POST['id_user']; ?>" />
 	  <input type="hidden" name="id_event" value="2" />
 
-		<?php if (($_POST['action'] == 'new' || $_POST['action'] == 'edit') && $_COOKIE['jimeluser']['profile'] < 3) { ?>
+		<?php if ($_COOKIE['jimeluser']['profile'] < 3) { ?>
 		<input type="hidden" name="id_association" value="<?php echo $_COOKIE['jimeluser']['association']; ?>" />
 		<?php } ?>
 
 		<p class="mbl"><input type="text"  name="fname" placeholder="Nome" class="form-control" value="<?php echo $fname; ?>" /></p>
 		<p class="mbl"><input type="text"  name="lname" placeholder="Sobrenome" class="form-control" value="<?php echo $lname; ?>" /></p>
+		<p class="mbl"><input type="text" name="jersey_num" placeholder="Número do Atleta" class="form-control" value="<?php echo $jersey_num; ?>" /></p>
 		<p class="mbl"><input type="email" name="email" placeholder="Email" class="form-control" value="<?php echo $email; ?>" /></p>
 		<p class="mbl"><input type="text"  name="bdate" placeholder="Data de Nascimento" class="form-control" value="<?php echo $birthdate; ?>" /></p>
 		<p class="mbl"><input type="text"  name="rg" placeholder="RG" class="form-control" value="<?php echo $rg; ?>" /></p>
@@ -149,7 +198,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit' || $err > 0) {
 		<form class='pull-left' method='post' action='escalacao.php'><input type='hidden' name='action' value='edit' /><p class="small pull-left">Este atleta já está inscrito na equipe <button class="btn btn-default btn-xs" name="id_team" value="<?php echo $id_team; ?>"><?php echo $team_name; ?></button><br />Para alterar os dados cadastrais, primeiro remova-o da equipe.</p></form>
 		<?php } ?>
 	<form class="pull-right" method="post" action="atletas.php">
-	<?php if ($_POST['action'] == 'edit') { ?>
+	<?php if ($_POST['action'] == 'edit' && $closed == 0) { ?>
 		<input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>">
 		<input type="hidden" name="name" value="<?php echo $fname ." ". $lname; ?>">
 		<button name="action" class="btn btn-danger btn-sm pull-right mll" value="del">Excluir</button>
@@ -190,7 +239,9 @@ if ($_POST['action'] == 'del_yes') {
 
 if (empty($_POST) || $_POST['action'] == 'back') {
 	/* List athletes */
-	echo "<form class='pull-right' method='post' action='atletas.php'><button class='btn btn-primary btn-sm' name='action' value='new'><span class='fui-plus'></span> Novo Atleta</button></form>";
+	if ($closed == 0) {
+		echo "<form class='pull-right' method='post' action='atletas.php'><button class='btn btn-primary btn-sm' name='action' value='new'><span class='fui-plus'></span> Novo Atleta</button></form>";
+	}
 	echo "<h1>Atletas</h1>";
 	if ($_COOKIE['jimeluser']['profile'] < 3) {
 	  $dados = $db->getAthletes($_COOKIE['jimeluser']['association']);
@@ -216,8 +267,7 @@ if (empty($_POST) || $_POST['action'] == 'back') {
 		<?php 
 		echo "<form class='pull-right' method='post' action='atletas.php'><input type='hidden' name='action' value='edit' />";
 		for ($i = 0; $i < $count; $i++) {
-			$rec = $i+1;
-			echo "<tr><td class='mobile-hidden'>". $rec ."</td>";
+			echo "<tr><td class='mobile-hidden'>". $dados[$i]['jersey_num'] ."</td>";
 			echo "<td>". $dados[$i]['firstname'] ." ". $dados[$i]['lastname'] ."</td>";
 			echo "<td class='mobile-hidden'>". $dados[$i]['email'] ."</td>";
 			
@@ -225,7 +275,7 @@ if (empty($_POST) || $_POST['action'] == 'back') {
 			echo "<td class='mobile-hidden'>$newDate</td>";
 			echo "<td>". $dados[$i]['age'] ."</td>";
 			echo "<td>". $dados[$i]['gender'] ."</td>";
-			echo "<td><button class='btn btn-primary btn-xs' name='user' value='". $dados[$i]['id_user'] ."'><span class='fui-new'></span> Editar</button></td>";		
+			echo "<td><button class='btn btn-primary btn-xs' name='id_user' value='". $dados[$i]['id_user'] ."'><span class='fui-new'></span> Editar</button></td>";		
 			echo "</tr>";
 		}
 		echo "</form>";
@@ -233,6 +283,7 @@ if (empty($_POST) || $_POST['action'] == 'back') {
 		</tbody>
 	</table>
 <?php
+	echo "$count atletas listados.";
 }
 
 

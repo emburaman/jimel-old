@@ -36,14 +36,16 @@ if ($_POST['action'] == 'login') {
 }
 
 if ($count == 1 && $dados['chg_pwd'] == 0) {
+	setcookie("jimeluser[id_user]", $dados['id_user'], time()+3600);
 	setcookie("jimeluser[username]", $dados['user_name'], time()+3600);
 	setcookie("jimeluser[firstname]", $dados['firstname'], time()+3600);
 	setcookie("jimeluser[lastname]", $dados['lastname'], time()+3600);
 	setcookie("jimeluser[profile]", $dados['profile'], time()+3600);
 	setcookie("jimeluser[association]", $dados['id_association'], time()+3600);
+	setcookie("jimeluser[igreja]", $dados['igreja'], time()+3600);
 	?><meta http-equiv="refresh" content="0; url=/"><?php
 }
-if (($count == 1 && $dados['chg_pwd'] >= 0) || $_POST['action'] == 'chg') {
+if (($count == 1 && $dados['chg_pwd'] > 0) || $_POST['action'] == 'chg') {
   echo "<h1>Redefina sua senha</h1>";
   
 	if ($err != '') {

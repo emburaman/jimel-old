@@ -37,9 +37,9 @@ if ($_POST['action'] != 'fix') {
   $db->query('SELECT * FROM vw_games WHERE id_game ='. $id);
   $game = $db->single();
 	
-	$db->query('SELECT SUM(result) AS placar FROM jimel.vw_score WHERE id_score_type = 1 AND id_game = '. $id .' AND id_team = '. $game['id_team_a']);
+	$db->query('SELECT SUM(result) AS placar FROM vw_score WHERE id_score_type = 1 AND id_game = '. $id .' AND id_team = '. $game['id_team_a']);
 	$scoreA = $db->single();
-	$db->query('SELECT SUM(result) AS placar FROM jimel.vw_score WHERE id_score_type = 1 AND id_game = '. $id .' AND id_team = '. $game['id_team_b']);
+	$db->query('SELECT SUM(result) AS placar FROM vw_score WHERE id_score_type = 1 AND id_game = '. $id .' AND id_team = '. $game['id_team_b']);
 	$scoreB = $db->single();
 	
 	if ($scoreA['placar'] == null) { $scoreA['placar'] = 0; }
@@ -54,15 +54,20 @@ if ($_POST['action'] != 'fix') {
       <td width="1"><span class="score"><?php echo $scoreB['placar'];?></span></td>
       <td><h4><?php echo $game['team_b'];?></h4></td>
     </tr>
-  
-  <?php
-  $teamA = $db->getSubscribed($game['id_team_a'],2);
-  $teamB = $db->getSubscribed($game['id_team_b'],2);
-  ?>
     <tr>
-      <td colspan="2" valign="top"><ul class="team team-a"><?php 
-        for ($a = 0; $a < count($teamA); $a++) { 
-					$score = $db->getScore($id, $teamA[$a]['id_subscription']);
+  <?php
+/* ################## */
+	$teams = array($game['id_team_a'],$game['id_team_b']);
+	
+	foreach($teams as $x => $t) { 
+	  $subs = $db->getSubscribed($t, 2);
+		
+		if ($x > 0) { echo '<td></td>'; }
+	?>
+      <td colspan="2" valign="top">
+				<table class="team col-md-12"><?php 
+        for ($a = 0; $a < count($subs); $a++) { 
+					$score = $db->getScore($id, $subs[$a]['id_subscription']);
 
 					$gols  = 0;
 					$fouls = 0;
@@ -75,71 +80,32 @@ if ($_POST['action'] != 'fix') {
 						if ($score[$i]['id_score_type'] == 4) { $yels  = $score[$i]['result']; }
 					}
 					?>
-          <li>
-          <span class='athlete'><?php echo $teamA[$a]['firstname']; ?> <?php echo $teamA[$a]['lastname']; ?></span>
-          <span class='pull-right'>
-					<form method='post' id='sumula_<?php echo $teamA[$a]['id_subscription']; ?>'>
-						<input type='hidden' name='action' value='upd_sumula'>
-						<input type='hidden' name='id_subscription' value='<?php echo $teamA[$a]['id_subscription']; ?>'>
-						<input type='hidden' name='id_game' value='<?php echo $id; ?>'>
-						<button name="id_score_type" class='btn btn-xs btn-default goal' value='1'>Gols
-							<?php if ($gols > 0) { ?><span class='total'><?php echo $gols; ?></span><?php } ?></button>
-						<button name="id_score_type" class='btn btn-xs btn-inverse foul' value='2'>&nbsp;
-							<?php if ($fouls > 0) { ?><span class='total'><?php echo $fouls; ?></span><?php } ?></button>
-						<button name="id_score_type" class='btn btn-xs btn-danger card-red' value='3'>&nbsp;
-							<?php if ($reds > 0) { ?><span class='total'><?php echo $reds; ?></span><?php } ?></button>
-						<button name="id_score_type" class='btn btn-xs btn-warning card-yellow' value='4'>&nbsp;
-							<?php if ($yels > 0) { ?><span class='total'><?php echo $yels; ?></span><?php } ?></button>
-						<!--<button name="id_score_type" class='btn btn-xs btn-info subs' value='5'>></button> -->
-						<button name="action" class='btn btn-xs btn-primary fui-new' value='fix'></button>
-          </form>
-					
-          </span>
-          </li>
+          <tr>
+						<td><strong class="pull-right"><?php echo $subs[$a]['jersey_num']; ?></strong></td>
+						<td class='athlete'><?php echo $subs[$a]['firstname'] .' '. $subs[$a]['lastname']; ?></td>
+						<td><span class='pull-right'>
+						<form method='post' id='sumula_<?php echo $subs[$a]['id_subscription']; ?>'>
+							<input type='hidden' name='action' value='upd_sumula'>
+							<input type='hidden' name='id_subscription' value='<?php echo $subs[$a]['id_subscription']; ?>'>
+							<input type='hidden' name='id_game' value='<?php echo $id; ?>'>
+							<button name="id_score_type" class='btn btn-xs btn-default goal' value='1'>Gols
+								<?php if ($gols > 0) { ?><span class='total'><?php echo $gols; ?></span><?php } ?></button>
+							<button name="id_score_type" class='btn btn-xs btn-inverse foul' value='2'>&nbsp;
+								<?php if ($fouls > 0) { ?><span class='total'><?php echo $fouls; ?></span><?php } ?></button>
+							<button name="id_score_type" class='btn btn-xs btn-danger card-red' value='3'>&nbsp;
+								<?php if ($reds > 0) { ?><span class='total'><?php echo $reds; ?></span><?php } ?></button>
+							<button name="id_score_type" class='btn btn-xs btn-warning card-yellow' value='4'>&nbsp;
+								<?php if ($yels > 0) { ?><span class='total'><?php echo $yels; ?></span><?php } ?></button>
+							<!--<button name="id_score_type" class='btn btn-xs btn-info subs' value='5'>></button> -->
+							<button name="action" class='btn btn-xs btn-primary fui-new' value='fix'></button>
+						</form></span>
+						</td>
+          </tr>
 					<?php
         }
-        ?></ul>
+        ?></table>
       </td>
-      <td></td>
-      <td colspan="2" valign="top"><ul class="team team-b"><?php 
-        for ($b = 0; $b < count($teamB); $b++) { 
-					$score = $db->getScore($id, $teamB[$b]['id_subscription']);
-
-					$gols  = 0;
-					$fouls = 0;
-					$reds  = 0;
-					$yels  = 0;
-					for ($i = 0; $i < count($score); $i++) {
-						if ($score[$i]['id_score_type'] == 1) { $gols  = $score[$i]['result']; }
-						if ($score[$i]['id_score_type'] == 2) { $fouls = $score[$i]['result']; }
-						if ($score[$i]['id_score_type'] == 3) { $reds  = $score[$i]['result']; }
-						if ($score[$i]['id_score_type'] == 4) { $yels  = $score[$i]['result']; }
-					}
-				?>
-          <li>
-          <span class='athlete'><?php echo $teamB[$b]['firstname']; ?> <?php echo $teamB[$b]['lastname']; ?></span>
-          <span class='pull-right'>
-					<form method='post' id='sumula_<?php echo $teamB[$b]['id_subscription']; ?>'>
-						<input type='hidden' name='action' value='upd_sumula'>
-						<input type='hidden' name='id_subscription' value='<?php echo $teamB[$b]['id_subscription']; ?>'>
-						<input type='hidden' name='id_game' value='<?php echo $id; ?>'>
-						<button name="id_score_type" class='btn btn-xs btn-default goal' value='1'>Gols
-							<?php if ($gols > 0) { ?><span class='total'><?php echo $gols; ?></span><?php } ?></button>
-						<button name="id_score_type" class='btn btn-xs btn-inverse foul' value='2'>&nbsp;
-							<?php if ($fouls > 0) { ?><span class='total'><?php echo $fouls; ?></span><?php } ?></button>
-						<button name="id_score_type" class='btn btn-xs btn-danger card-red' value='3'>&nbsp;
-							<?php if ($reds > 0) { ?><span class='total'><?php echo $reds; ?></span><?php } ?></button>
-						<button name="id_score_type" class='btn btn-xs btn-warning card-yellow' value='4'>&nbsp;
-							<?php if ($yels > 0) { ?><span class='total'><?php echo $yels; ?></span><?php } ?></button>
-						<!--<button name="id_score_type" class='btn btn-xs btn-info subs' value='5'>></button> -->
-						<button name="action" class='btn btn-xs btn-primary fui-new' value='fix'></button>
-          </form>
-          </span>
-          </li>
-					<?php
-        }
-        ?></ul>
-      </td>
+		<?php } ?>
     </tr>
   </table>
 	<hr />

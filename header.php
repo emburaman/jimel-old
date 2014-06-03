@@ -1,4 +1,8 @@
-	<!DOCTYPE html>
+<?php 
+$deadline = mktime(23,59,59,7,27,2014);
+$today    = time();
+?>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -30,8 +34,8 @@
           <div class="navbar-right pull-right mrl">
           <?php if (!isset($_COOKIE['jimeluser'])) {?>
             <a href="login.php" class="btn btn-default navbar-btn btn-xs" type="button">Log in</a>
-          <?php } else {?>
-            <p class="navbar-text salutation">Bem-vindo <?php print $_COOKIE['jimeluser']['firstname'];?>. <a href="logout.php" class="btn btn-default navbar-btn btn-xs" type="button">Log out</a></p>
+          <?php } else {?><form class='pull-right' method='post' action='usuarios.php'><input type='hidden' name='action' value='edit' />
+            <p class="navbar-text salutation">Bem-vindo <button class='btn btn-inverse btn-xs plx prx' name='id_user' value='<?php print $_COOKIE['jimeluser']['id_user']; ?>'><?php print $_COOKIE['jimeluser']['firstname'];?></button> (<?php print $_COOKIE['jimeluser']['igreja'];?>) <a href="logout.php" class="btn btn-default navbar-btn btn-xs" type="button">Log out</a></p></form>
           <?php } ?>
           </div>
 
@@ -45,6 +49,8 @@
                 <a href="#fakelink" class="dropdown-toggle" data-toggle="dropdown">Admin<span class="caret"></span></a>
                 <span class="dropdown-arrow dropdown-arrow-inverse"></span>
                 <ul class="dropdown-menu dropdown-inverse">
+                  <li><a href="estatisticas.php">Estatísticas</a></li>
+                  <li><a href="entidades.php">Entidades</a></li>
                   <li><a href="usuarios.php">Usuários</a></li>
                   <li><a href="jogos.php">Jogos</a></li>
                   <li><a href="classificacao.php">Classificação</a></li>
@@ -81,4 +87,11 @@
 				print_r($v);
 				print '</pre>';
 			}
+
+if ($today > $deadline) {
+	$closed = 1;
+	echo '<div class="col-md-12 btn btn-danger mbl">Prazo para inscrições encerrado.</div>';
+} else {
+	$closed = 0;
+}
 			?>

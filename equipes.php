@@ -8,6 +8,42 @@ if (!isset($_COOKIE['jimeluser'])) {
 include_once('connect.php');
 $db = new Database();
 
+/* GENERATE MASS DATA */
+if ($_REQUEST['action'] == 'mass') { 
+	$start  = $_REQUEST['start_id'];
+	$amount = $_REQUEST['amount'];
+	
+	$ents = $db->getEntities();
+	$nume = $db->rowCount();
+
+	$cats = $db->getCategories();
+	$numc = $db->rowCount();
+
+	for ($c = 0; $c < $numc; $c++) { 
+		for ($e = 1; $e < $nume; $e++) { 
+			for ($i = 0; $i < $amount; $i++) {
+				$color = sprintf( "#%06X", mt_rand( 0, 0xFFFFFF ));
+				
+				$u = array(
+									 'name'           => "Equipe ". $cats[$c]['name'] ." ". $start,
+									 'color'          => $color,
+									 'id_category'    => $cats[$c]['id_category'],
+									 'id_association' => $ents[$e]['id_association'],
+									 'id_event'       => 2,
+									 'status'         => 1,
+									 );
+				$db->addTeams($u);
+				//p($u['name'].'/'.$u['color'].'/'.$u['id_category'].'/'.$u['id_association'].'/'.$u['id_event'].'/'.$u['status']);
+				$start++;
+			}
+		}
+	}
+	die("$start equipes criadas.");
+}
+/* ################## */
+
+
+
 /* New/Edit athlete */
 if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 	$status = 1;
@@ -33,6 +69,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		$any = $db->getSubscribed($dados['id'], $dados['id_event']);
 		$any = $db->rowCount();
 	}
+
 	?>
 	<form method="post" action="equipes.php">
 	  <input type="hidden" name="id_team" value="<?php echo $_POST['id_team']; ?>" />
@@ -96,7 +133,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 			echo '<input type="hidden" name="id_event" value="2" />';
 		} ?>
     
-		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
+		<?php if ($_COOKIE['jimeluser']['profile'] >= 3 && $_POST['action'] == 'edit') { ?>
 		<p class="mbl"><select name="id_group" class="form-control"><option>< Selecione um Grupo ></option><?php
 			$db->query('SELECT * FROM es_group WHERE id_category = '. $dados['id_category']);
       $gp = $db->resultset();
@@ -124,11 +161,15 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 
 		<button type="submit" class="btn btn-primary btn-wide mrm pull-left" name="action" value="save">Salvar</button>
 	</form>
+	
 	<form class="pull-right" method="post" action="equipes.php">
+	<?php if ($_POST['action'] == 'edit' && $closed == 0) { ?>
 		<input type="hidden" name="id_team" value="<?php echo $_POST['id_team']; ?>">
 		<input type="hidden" name="action" value="del">
 		<input type="hidden" name="name" value="<?php echo $name; ?>">
 		<input type="submit"  class="btn btn-danger btn-wide pull-right" value="Excluir"/>
+	<?php } ?>
+		<button name="action" class="btn btn-default btn-sm pull-right" value="back">Voltar</button>
 	</form>
 	<div id="colorpicker"></div>
 	<?php
@@ -191,9 +232,11 @@ if ($_POST['action'] == 'del_yes') {
 	echo "<meta http-equiv='refresh' content='0; url=/equipes.php'>";
 }
 
-if (empty($_POST)) {
+if (empty($_POST) || $_POST['action'] == 'back') {
 	/* List athletes */
-	echo "<form class='pull-right' method='post' action='equipes.php'><button class='btn btn-primary' name='action' value='new'><span class='fui-plus'></span> Adicionar Equipe</button></form>";
+	if ($closed == 0) {
+		echo "<form class='pull-right' method='post' action='equipes.php'><button class='btn btn-primary' name='action' value='new'><span class='fui-plus'></span> Adicionar Equipe</button></form>";
+	}
 	echo "<h1>Equipes</h1>";
 	if ($_COOKIE['jimeluser']['profile'] < 3) {
 	  $dados = $db->getTeams($_COOKIE['jimeluser']['association'], 2, null);
@@ -238,6 +281,7 @@ if (empty($_POST)) {
 		</tbody>
 	</table>
 <?php
+	echo "$count equipes listadas.";
 }
 
 

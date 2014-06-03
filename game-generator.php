@@ -10,8 +10,10 @@ $db = new Database();
 
 /* Generate Games */
 //if ($_POST['action'] == 'new' || $_POST['action'] == 'generate') {
-	$db->groupMatches(2, array(21,37,46), 'B');
-	
+	$db->groupMatches(2, array(378,385,383,381), 'A');
+	$db->groupMatches(2, array(379,384,391), 'B');
+	$db->groupMatches(2, array(382,398,380), 'C');
+
 //}
 ?>
 

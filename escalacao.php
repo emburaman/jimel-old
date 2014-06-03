@@ -93,11 +93,12 @@ $counta = $db->rowCount();
 	<input type="hidden" name="id_event" value="<?php echo $dados['id_event']?>">
 	<input type="hidden" name="action" value="add">
 	<?php 
-	if ($counta <= 0) {
-		echo "<span class='btn btn-warning'>Não existe nenhum atleta disponível para ser escalado para esta equipe.</span>";
+	if ($counta <= 0 && $counts < 12 ) {
+		if ($counts > 0) { $o = "outro"; }
+		echo "<span class='btn btn-warning'>Não existe nenhum $o atleta disponível para ser escalado para esta equipe.</span>";
 	}
 	for ($i=0;$i<$counta;$i++) {
-		echo '<label class="checkbox" for="'. $dadosa[$i]['id_athlete'] .'"><input type="checkbox" value="'. $dadosa[$i]['id_athlete'] .'" name="athlete['. $dadosa[$i]['id_athlete'] .']" data-toggle="checkbox">'. $dadosa[$i]['firstname'] .' '. $dadosa[$i]['lastname'] .' <sup>'. $dadosa[$i]['age'] .'</sup></label>'; 
+		echo '<label class="checkbox" for="'. $dadosa[$i]['id_athlete'] .'"><input type="checkbox" value="'. $dadosa[$i]['id_athlete'] .'" name="athlete['. $dadosa[$i]['id_athlete'] .']" data-toggle="checkbox"><strong>'. $dadosa[$i]['jersey_num'] .'</strong>&nbsp;&nbsp;'. $dadosa[$i]['firstname'] .' '. $dadosa[$i]['lastname'] .'</label>'; 
 	} 
 	
 	if ($counta > 0 && $counts < 12) {?>
@@ -110,7 +111,7 @@ $counta = $db->rowCount();
 	<?php if ($counts <= 0) { ?>
 		<span class='btn btn-info'>Não existe nenhum atleta escalado para esta equipe.</span>
 	<?php } elseif ($counts < 5) { ?>
-		<p class="small">Este time ainda não possui o mínimo de atletas inscritos necessários para participar do Jimel.</p>
+		<p class="small">Este time ainda não possui o mínimo de 5 atletas inscritos necessários para participar do Jimel.</p>
 	<?php } ?>
 	<form method="post" action="escalacao.php">
 	<input type="hidden" name="id_team" value="<?php echo $dados['id']?>">
@@ -118,7 +119,7 @@ $counta = $db->rowCount();
 	<input type="hidden" name="action" value="del">
 	<?php 
 	for ($i=0;$i<$counts;$i++) { 
-		echo '<label class="escalado checkbox" for="'. $dadoss[$i]['id_athlete'] .'"><input type="checkbox" value="'. $dadoss[$i]['id_subscription'] .'" name="subscription['. $i .']" data-toggle="checkbox">'. $dadoss[$i]['firstname'] .' '. $dadoss[$i]['lastname'] .' <sup>'. $dadoss[$i]['age'] .'</sup></label>'; 
+		echo '<label class="escalado checkbox" for="'. $dadoss[$i]['id_athlete'] .'"><input type="checkbox" value="'. $dadoss[$i]['id_subscription'] .'" name="subscription['. $i .']" data-toggle="checkbox"><strong>'. $dadoss[$i]['jersey_num'] .'</strong>&nbsp;&nbsp;'. $dadoss[$i]['firstname'] .' '. $dadoss[$i]['lastname'] .'</label>'; 
 	} 
 	if ($counts > 0) {?>
 		<input type="submit" class="btn btn-primary btn-wide mrm pull-right desescalar" disabled="disabled" value="Remover"/>

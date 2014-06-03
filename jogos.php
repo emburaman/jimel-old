@@ -45,7 +45,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 				$chk = '';
 				if ($lsTeamA[$i]['id'] == $idTeamA) { $chk = ' selected="selected"'; }
 			?>
-				<option value="<?php echo $lsTeamA[$i]['id']; ?>" <?php echo $chk; ?>><?php echo $lsTeamA[$i]['team_name']; ?></option>
+				<option value="<?php echo $lsTeamA[$i]['id']; ?>" <?php echo $chk; ?>><?php echo $lsTeamA[$i]['team_name']; ?> [<?php echo $lsTeamA[$i]['num_athletes']; ?>]</option>
 			<?php } ?>
 			</select>
 		</p>
@@ -58,7 +58,7 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 				$chk = '';
 				if ($lsTeamB[$i]['id'] == $idTeamB) { $chk = ' selected="selected"'; }
 			?>
-				<option value="<?php echo $lsTeamB[$i]['id']; ?>" <?php echo $chk; ?>><?php echo $lsTeamB[$i]['team_name']; ?></option>
+				<option value="<?php echo $lsTeamB[$i]['id']; ?>" <?php echo $chk; ?>><?php echo $lsTeamB[$i]['team_name']; ?> [<?php echo $lsTeamB[$i]['num_athletes']; ?>]</option>
 			<?php } ?>
 			</select>
 		</p>
