@@ -7,8 +7,6 @@ $db = new Database();
 <h1>Alocação de Quadras</h1>
 
 <?php
-<<<<<<< HEAD
-=======
 /*
 foreach ($tcount as $k => $v) {
   for ($i = 0; $i < $v; $i++) {
@@ -25,7 +23,7 @@ foreach ($tcount as $k => $v) {
   }
 }
 */
->>>>>>> 8f7be24e9db536ac0a6d3fed46f808ee5e24821a
+
 $qua   = array('A','B','C','D','E');
 
 ?>
@@ -44,7 +42,7 @@ $qua   = array('A','B','C','D','E');
 <?php
 $time = mktime(9, 0, 0, 8, 16, 2014);
 $interval = /*time() + */ (30 * 60); // 30 minutos * 60 segundos
-<<<<<<< HEAD
+
 $time_slots = 18;
 
 $qtd_teams = array( 1 => 7,
@@ -153,7 +151,6 @@ for($t = 0; $t < $time_slots; $t++) {
 	$skip_check = $skip;
 	print "</tr>";
 }
-=======
 
 $allowed = array(
                   1 => array(1,2),
@@ -222,7 +219,7 @@ $quadra = array();
 $slot = 0;
 
 for($r = 0; $r < count($games); $r++) {
-  for($c = 1; $c <= count($games[$r]; $c++)) {
+  for($c = 1; $c <= count($games[$r]); $c++) {
     for($a = 1; $a <= 5; $a++) {
     
     }
@@ -231,8 +228,6 @@ for($r = 0; $r < count($games); $r++) {
 
 
 //p($games);
-
->>>>>>> 8f7be24e9db536ac0a6d3fed46f808ee5e24821a
 
 ?>
 
