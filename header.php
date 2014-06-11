@@ -49,6 +49,7 @@ $today    = time();
                 <a href="#fakelink" class="dropdown-toggle" data-toggle="dropdown">Admin<span class="caret"></span></a>
                 <span class="dropdown-arrow dropdown-arrow-inverse"></span>
                 <ul class="dropdown-menu dropdown-inverse">
+                  <li><a href="agenda.php">Agenda do Dia</a></li>
                   <li><a href="estatisticas.php">Estatísticas</a></li>
                   <li><a href="entidades.php">Entidades</a></li>
                   <li><a href="usuarios.php">Usuários</a></li>

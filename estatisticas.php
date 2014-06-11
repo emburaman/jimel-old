@@ -19,11 +19,9 @@ $num = $db->resultset();
 if ($num[0]['num'] == 1) { ?> equipe cadastrada<?php } else { ?> equipes cadastradas<?php } ?>.</p>
 
 <?php
-$db->query('SELECT COUNT(*) FROM es_athlete');
-$db->execute();
-$num = $db->rowCount();
-?>
-<p><?php echo $num; 
+$db->query('SELECT COUNT(*) AS total FROM es_athlete');
+$num = $db->resultset();?>
+<p><?php echo $num[0]['total']; 
 if ($num == 1) { ?> atleta cadastrado<?php } else { ?> atletas cadastrados<?php } ?>.</p>
 <?php
 

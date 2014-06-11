@@ -7,99 +7,7 @@ $db = new Database();
 <h1>Alocação de Quadras</h1>
 
 <?php
-$cat   = array(
-               1 => array('id' => 1, 'name' => 'Feminino',  'groups' => array('A','B'),                     'quadras' => array('B')),
-               2 => array('id' => 2, 'name' => 'Senior',    'groups' => array('A','B','C','D','E','F','G'), 'quadras' => array('A','B','C','D','E')),
-               3 => array('id' => 3, 'name' => 'Mirim',     'groups' => array('A'),                         'quadras' => array('A')),
-               4 => array('id' => 4, 'name' => 'Junior',    'groups' => array('A','B'),                     'quadras' => array('C', 'D')),
-               5 => array('id' => 5, 'name' => 'Master',    'groups' => array('A','B'),                     'quadras' => array('D')),
-               6 => array('id' => 6, 'name' => 'Veteranos', 'groups' => array('A','B'),                     'quadras' => array('E'))
-              );
-
 $qua   = array('A','B','C','D','E');
-$tcount = array(
-                1 => 6,
-                2 => 15,
-                3 => 5,
-                4 => 7,
-                5 => 6,
-                6 => 4,
-               );
-asort($tcount);
-
-$teams = array(
-               1 => array('A' => array(1, 2, 3), 'B' => array(4, 5, 6)),
-               2 => array('A' => array(1,2,3),'B' => array(4,5,6),'C' => array(7,8,9),'D' => array(10,11,12),'E' => array(13,14,15) /*,'F' => array(21,22,23,24),'G' => array(25,26,27)*/),
-               3 => array('A' => array(1, 2, 3, 4, 5)),
-               4 => array('A' => array(1, 2, 3, 4), 'B' => array(5, 6, 7)),
-               5 => array('A' => array(1, 2, 3), 'B' => array(4, 5, 6)),
-               6 => array('A' => array(1, 2, 3, 4)),
-              );
-
-/* Generate Games */
-$g = 0;
-foreach ($tcount as $tk => $tv) {
-  foreach($teams[$tk] as $k => $t) {
-    $rows[$tk][$k] = $db->combo($t);
-  }
-}
-
-$num_groups = 0;
-for ($x = 1; $x <= count($rows); $x++) {
-  $qcount = count($cat[$x]['quadras']);
-  $gc = 0;
-  
-  echo "<div class='col-md-12 clearfix'>";
-  foreach ($rows[$x] as $kc => $vc) {
-    $num_groups++;
-    print "<p class='col-md-3'>". $cat[$x]['name'] ." - Grupo ". $kc ."<br />";
-    for ($y = 0; $y < count($vc); $y++) {
-      print "<small>(". $vc[$y]['Sequence'] .")". $vc[$y]['Team A'] ." x ". $vc[$y]['Team B'] ."</small><br />";
-      $g++;
-      $gc++;
-      $all_games[$g] = array('id_category' => $cat[$x]['id'], 'group' => $kc, 'team_a' => $vc[$y]['Team A'], 'team_b' => $vc[$y]['Team B'], 'sequence' => $vc[$y]['Sequence'], 'quadras' => $cat[$x]['quadras']);
-    }
-    echo "</p>";
-  }
-  echo "<p class='col-md-12 clearfix'><small>$gc Jogos na categoria ". $cat[$x]['name'] ."</small></p></div><hr class='col-md-12 clearfix' />";
-  $gcount[$x] = $gc;
-}
-echo "$g Jogos";
-
-/* Get overall number of groups */
-
-
-/* Get categories sequence */
-$i = 0;
-foreach ($tcount as $k => $v) {
-  $cat_seq[$i] = $k;
-  $i++;
-}
-//p($gcount);
-//p($cat_seq);
-//p($num_groups);
-//p($rows);
-
-function cmp($a, $b) {
-    return $a['sequence'] > $b['sequence'] ? 1 : -1;
-}
-usort($all_games,"cmp");
-//p($all_games);
-$last = end($all_games);
-
-$iterations = array();
-$int = 1;
-$inttotal = 1;
-for ($l = 0; $l < count($all_games); $l++) {
-  if ($all_games[$l]['sequence'] == $int) {
-    $inttotal++;
-  } else {
-    $int++;
-    $inttotal = 1;
-  }
-  $iterations[$int] = $inttotal;
-}
-p($all_games);
 
 ?>
 <table class="table table-striped table-hover table-condensed table-bordered">
@@ -117,57 +25,114 @@ p($all_games);
 <?php
 $time = mktime(9, 0, 0, 8, 16, 2014);
 $interval = /*time() + */ (30 * 60); // 30 minutos * 60 segundos
+$time_slots = 18;
 
-$time_slots = 17;
-$gseq = 1;
-$slot = 0;
-$line = 0;
-//for($i = 1; $i <= $int; $i++) {
-  for($a = 1; $a <= count($all_games); $a++) {
-    $line++;
-    if ($line == 1) { echo "<tr><td>". date("H:i", $time) ."</td>"; }
-    echo "<td>(". $all_games[$a]['id_category'] .")". $all_games[$a]['team_a'] ." x ". $all_games[$a]['team_b'] ." [$a]</td>";
-    /*
-    foreach($qua as $v) {
-      if(in_array($v, $all_games[$a]['quadras'])) {
-      }
-    }
-    */
-    if($line == 5) {
-      echo "</tr>";
-      $line = 0;
-      $time = $time + $interval;
-    }
-  }
-//}
-/*
+$qtd_teams = array( 1 => 7,
+										2 => 17,
+										3 => 6,
+										4 => 4,
+										5 => 6,
+										6 => 4);
 
-for($ts = 0; $ts < $time_slots; $ts++) {
-  $curr_game = 0;
-  echo "<tr>";
-  if (date("H:i", $time) != '12:00' && date("H:i", $time) != '12:30') {
-    print "<td>". date("H:i", $time) . "</td>";
-    $q = 0;
-    foreach($qua as $v) {
-      $q++;
-      echo "<td>";
-      for($i = 1; $i <= count($all_games); $i++) {
-        //p($all_games[$i]['quadras']);
-        if(in_array($v, $all_games[$i]['quadras'])) {
-          echo "sim";
-        }
-      }
-      echo "</td>";
-    }
-  }
-  $time += $interval;
-  echo "</tr>";
+$teams_per_group = array(
+										1 => 4,
+										2 => 3,
+										3 => 3,
+										4 => 4,
+										5 => 3,
+										6 => 4);
+
+$allowed_categories = array(
+										'A' => array(2), 
+										'B' => array(2), 
+										'C' => array(1,4), 
+										'D' => array(1,5,6), 
+										'E' => array(3,5,6)
+										);
+
+
+/* Generate Games */ /*
+foreach($teams_per_group as $k => $v) {
+	$db->query("SELECT t.group AS grupo FROM vw_teams AS t WHERE t.id_category = $k GROUP BY grupo");
+	$groups = $db->resultset();
+	for($g = 0; $g < count($groups); $g++) {
+		$qry = "SELECT id FROM vw_teams As t WHERE id_category = $k AND t.group ='". $groups[$g]['grupo'] ."' ORDER BY id";
+		$db->query($qry);
+		$teams = $db->resultset();
+		$tt = array();
+		for ($t = 0; $t < count($teams); $t++) {
+			$tt[$t] = $teams[$t]['id'];
+		}
+		$db->groupMatches(2, $tt, $groups[$g]['grupo']);
+	}
 }
 */
+//$db->getGames();
+$db->query('UPDATE es_game SET alloc = 0');
+$db->execute();
 
-$pcount = 20;
-//p($gcount);
-//p($tcount);
+
+$cc = 0;
+$skip_check = array();
+
+for($t = 0; $t < $time_slots; $t++) {
+	$skip = array();
+	print "<tr><td>". date("H:i", $time) ."</td>";
+	if(date("H:i", $time) == "12:00" || date("H:i", $time) == "12:30") {
+		print "<td colspan='5'>almoço</td>";
+	} else {
+		foreach ($qua as $v) {
+			$inn = '';
+			if(count($skip_check) > 0) {
+				foreach($skip_check as $id) {
+					if ($inn <> '') { $inn .= ','; }
+					$inn .= $id;
+				}
+			}
+			if(count($skip) > 0) {
+				foreach($skip as $id) {
+					if ($inn <> '') { $inn .= ','; }
+					$inn .= $id;
+				}
+			}
+			if ($inn != '') {
+				$inn = "(id_team_a NOT IN ($inn) AND id_team_b NOT IN ($inn)) AND";
+			}
+			
+			$db->query("SELECT * FROM es_game_place WHERE name = '$v'");
+			$id_game_place = $db->single();
+			$id_game_place = $id_game_place['id_game_place'];
+			$cc++;
+			$in = "";
+			foreach($allowed_categories[$v] as $c) {
+				if ($in <> "") { $in .= ","; }
+				$in .= "$c";
+			}
+			$qry = "SELECT * FROM vw_games WHERE $inn id_category IN ($in) AND alloc = 0 ORDER BY sequence ASC LIMIT 1";
+			$db->query($qry);
+			$game = $db->resultset();
+			if(count($game) > 0) {
+				array_push($skip, $game[0]['id_team_a']);
+				array_push($skip, $game[0]['id_team_b']);
+			}
+			
+			if (count($game) == 0) { 
+				print "<td>";
+				print "</td>";
+			} else {
+				print "<td>";
+				print "<p>". $game[0]['team_a'] ."</p><p>x</p><p>". $game[0]['team_b'] ."</p>";
+				print "</td>";
+				$qry = "UPDATE es_game SET date_time = '". date('Y-m-d H:i:s', $time) ."', id_game_place = $id_game_place, alloc = 1 WHERE id_game = ". $game[0]['id_game'];
+				$db->query($qry);
+				$db->execute();
+			}
+		}
+	}
+	$time += $interval;
+	$skip_check = $skip;
+	print "</tr>";
+}
 
 ?>
 

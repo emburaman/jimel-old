@@ -500,13 +500,14 @@ class Database extends dbVariables {
 	}
 	
 	public function updGame($arr) {
-		$this->query('UPDATE es_game SET id_team_a = :id_team_a, id_team_b = :id_team_b, date_time = :date_time, id_game_place = :id_game_place, id_group = :id_group WHERE id_game = :id_game');
+		$this->query('UPDATE es_game SET id_team_a = :id_team_a, id_team_b = :id_team_b, date_time = :date_time, id_game_place = :id_game_place, id_group = :id_group, sequence=:sequence WHERE id_game = :id_game');
 		$this->bind(':id_game',$arr['id_game']);
 		$this->bind(':date_time',$arr['date_time']);
 		$this->bind(':id_team_a',$arr['id_team_a']);
 		$this->bind(':id_team_b',$arr['id_team_b']);
 		$this->bind(':id_game_place',$arr['id_game_place']);
 		$this->bind(':id_group',$arr['id_group']);
+		$this->bind(':sequence',$arr['sequence']);
 
 		$this->execute();
 		return true;
@@ -524,13 +525,14 @@ class Database extends dbVariables {
 	}
 	
 	public function addGame($arr) {
-		$this->query('INSERT INTO es_game (date_time, id_event, id_team_a, id_team_b, id_game_place, id_group) VALUES (:date_time, :id_event, :id_team_a, :id_team_b, :id_game_place, :id_group)');
+		$this->query('INSERT INTO es_game (date_time, id_event, id_team_a, id_team_b, id_game_place, id_group,sequence) VALUES (:date_time, :id_event, :id_team_a, :id_team_b, :id_game_place, :id_group, :sequence)');
 		$this->bind(':date_time',$arr['date_time']);
 		$this->bind(':id_event', $arr['id_event']);
 		$this->bind(':id_team_a',$arr['id_team_a']);
 		$this->bind(':id_team_b',$arr['id_team_b']);
 		$this->bind(':id_game_place',$arr['id_game_place']);
 		$this->bind(':id_group',$arr['id_group']);
+		$this->bind(':sequence',$arr['sequence']);
 
 		$this->execute();
 		return $this->lastInsertId();
@@ -574,6 +576,7 @@ class Database extends dbVariables {
 		$games = $this->combo($teams);
 		
 		for ($i = 0; $i < count($games); $i++) {
+			$seq = $i +1;
 			$teamA = $this->getTeam($games[$i]['Team A']);
 			$teamB = $this->getTeam($games[$i]['Team B']);
 			$arr = array('date_time' => '2014-08-16 08:30:00', 
@@ -581,8 +584,9 @@ class Database extends dbVariables {
 									 'id_team_a' => $teamA['id'], 
 									 'id_team_b' => $teamB['id'], 
 									 'id_game_place' => $place, 
+									 'sequence' => $seq, 
 									 'id_group' => $id_group);
-
+p($arr);
 			$this->addGame($arr);
 		}
 		return true;

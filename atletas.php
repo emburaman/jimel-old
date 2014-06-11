@@ -15,29 +15,37 @@ if ($_REQUEST['action'] == 'mass') {
 	
 	$ents = $db->getEntities();
 	$nume = $db->rowCount();
+	$cats = $db->getCategories();
+	$numc = $db->rowCount();
 	
 	for ($e = 1; $e < $nume; $e++) { 
-		for ($i = 0; $i < $amount; $i++) {
-			$curr_year = date('Y');
-			$dob_year  = rand($curr_year-7,$curr_year-55);
-			$dob_month = rand(01,12);
-			$dob_day   = rand(01,30);
-			$dob = $dob_year .'-'. str_pad($dob_month, 2, '0', STR_PAD_LEFT) .'-'. str_pad($dob_day, 2, '0', STR_PAD_LEFT);
-			
-			$u = array(
-								 'uname' => "atleta". sprintf("%05s", $start),
-								 'fname' => "Atleta",
-								 'lname' => sprintf("%05s", $start),
-								 'email' => "atleta". sprintf("%05s", $start) ."@jimel.com.br",
-								 'bdate' => $dob,
-								 'id_association' => $ents[$e]['id_association'],
-								 'gender' => 'M',
-								 'id_event' => 2,
-								 'status' => 1,
-								 'jersey_num' => rand(1, 12)
-								 );
-			$db->addAthlete($u);
-			$start++;
+		for ($c = 0; $c <= $numc; $c++) {
+			if ($cats[$c]['min_age'] != null) { $min = $cats[$c]['min_age']; } else { $min = 7;  }
+			if ($cats[$c]['max_age'] != null) { $max = $cats[$c]['max_age']; } else { $max = 65; }
+			if ($cats[$c]['gender']  == 'F' ) { $gender = 'F'; } else { $gender = 'M'; }
+
+			for ($i = 0; $i < $amount; $i++) {
+				$curr_year = date('Y');
+				$dob_year  = rand($curr_year - $min,$curr_year - $max);
+				$dob_month = rand(01,12);
+				$dob_day   = rand(01,28);
+				$dob = $dob_year .'-'. str_pad($dob_month, 2, '0', STR_PAD_LEFT) .'-'. str_pad($dob_day, 2, '0', STR_PAD_LEFT);
+				
+				$u = array(
+									 'uname' => "atleta". sprintf("%05s", $start),
+									 'fname' => "Atleta",
+									 'lname' => sprintf("%05s", $start),
+									 'email' => "atleta". sprintf("%05s", $start) ."@jimel.com.br",
+									 'bdate' => $dob,
+									 'id_association' => $ents[$e]['id_association'],
+									 'gender' => $gender,
+									 'id_event' => 2,
+									 'status' => 1,
+									 'jersey_num' => rand(1, 12)
+									 );
+				$db->addAthlete($u);
+				$start++;
+			}
 		}
 	}
 	die("$start atletas criados.");
@@ -285,7 +293,6 @@ if (empty($_POST) || $_POST['action'] == 'back') {
 <?php
 	echo "$count atletas listados.";
 }
-
 
 include_once('bottom.php');
 ?>

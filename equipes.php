@@ -8,7 +8,7 @@ if (!isset($_COOKIE['jimeluser'])) {
 include_once('connect.php');
 $db = new Database();
 
-/* GENERATE MASS DATA */
+/* GENERATE MASS DATA */ /*
 if ($_REQUEST['action'] == 'mass') { 
 	$start  = $_REQUEST['start_id'];
 	$amount = $_REQUEST['amount'];

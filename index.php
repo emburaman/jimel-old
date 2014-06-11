@@ -89,13 +89,40 @@ include_once('header.php');
 </div>
 
 <div class="col-lg-4 col-md-4 col-xs-12 pull-right">
+	<h4>Estatísticas 2014</h4>
+	<?php
+	include_once('connect.php');
+	$db = new Database();
+	$db->query('SELECT COUNT(id_team) AS num FROM es_team');
+	$db->execute();
+	$num = $db->resultset();
+	?>
+	<p><?php echo $num[0]['num']; 
+	if ($num[0]['num'] == 1) { ?> equipe cadastrada<?php } else { ?> equipes cadastradas<?php } ?>.<br/>
+	
+	<?php
+	$db->query('SELECT COUNT(*) AS total FROM es_athlete');
+	$num = $db->resultset();?>
+	<?php echo $num[0]['total']; 
+	if ($num == 1) { ?> atleta cadastrado<?php } else { ?> atletas cadastrados<?php } ?>.<br/>
+	<?php
+	
+	$db->query('SELECT a.name AS association FROM es_team AS e LEFT JOIN es_association AS a ON e.id_association = a.id_association GROUP BY association');
+	$db->execute();
+	$num = $db->rowCount();
+	$rows = $db->resultset();
+	echo $num; 
+	if ($num == 1) { ?> igreja participante <?php } else { ?> igrejas participantes<?php } ?>.</p>
+</div>
+
+<div class="col-lg-4 col-md-4 col-xs-12 pull-right">
 	<div class="mapa">
 		<h4>Como chegar</h4>
+		<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14621.914123543282!2d-47.0661944!3d-23.6230278!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDM3JzIyLjkiUyA0N8KwMDMnNTguMyJX!5e0!3m2!1spt-BR!2s!4v1401587153513" width="370" height="280" frameborder="0" style="border:0"></iframe>
 		<h5><a href="http://paraiso48.com.br/" title="Paraíso 48" target="_blank">Paraíso 48</a></h5>
 		<p><strong>Estrada Municipal do Carmo, 1201</strong><br>
 		Km 48 da Rodovia Bunjiro Nakao (Saída no km 45 da rodovia Raposo Tavares)<br>
 		Bairro do Carmo – Estância Turística de São Roque – SP – 18145-340</p>
-		<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14621.914123543282!2d-47.0661944!3d-23.6230278!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDM3JzIyLjkiUyA0N8KwMDMnNTguMyJX!5e0!3m2!1spt-BR!2s!4v1401587153513" width="370" height="280" frameborder="0" style="border:0"></iframe>
 	</div>
 </div>
 

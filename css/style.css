@@ -165,3 +165,27 @@ p.small {
 strong {
 	font-weight: 900;
 }
+.schedule td {
+	text-align: center;
+}
+.schedule td p {
+	margin: 0;
+}
+.table .feminino {
+	background-color: #F9F;
+}
+.table .mirim {
+	background-color: #CF0;
+}
+.table .junior {
+	background-color: #0CF;
+}
+.table .senior {
+	background-color: #9CC;
+}
+.table .master {
+	background-color: #C9F;
+}
+.table .veteranos {
+	background-color: #FC6;
+}
