@@ -1,6 +1,7 @@
 <?php 
 $deadline = mktime(23,59,59,7,27,2014);
 $today    = time();
+$base_path = "";
 ?>
 <!DOCTYPE html>
 <html lang="en">
