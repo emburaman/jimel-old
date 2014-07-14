@@ -1,9 +1,5 @@
 <?php
 include_once('header.php');
-if ($_COOKIE['jimeluser']['profile'] < 3) {
-	echo "<span class='btn btn-danger'>Você não tem permissão para visualizar esta página.</span>";
-	exit;
-}
 
 include_once('connect.php');
 $db = new Database();
@@ -18,8 +14,13 @@ if (empty($_POST)) {
 	echo "<h1><a name='top'></a>Classificação</h1>";
 	for ($i = 0; $i < $cCount; $i++) {
 		$id_cat = $categs[$i]['id_category'];
-		echo "<h4><a name='category_$id_cat'></a>". $categs[$i]['name'] ."</h4>";
-		
+		?>
+		<div class="panel panel-info">
+			<div class="panel-heading">
+				<h3 class="panel-title"><a name='category_$id_cat'></a><?php print $categs[$i]['name']; ?></h3>
+			</div>
+			<div class="panel-body">
+		<?php
 		$db->query("SELECT * FROM es_group WHERE id_category = $id_cat");
 		$groups = $db->resultset();
 		
@@ -30,9 +31,8 @@ if (empty($_POST)) {
 		<thead>
 			<tr>
 				<th width="1">#</th>
-				<th>Equipe</th>
-				<th class="sm">G</th>
-				<th class="sm">P</th>
+				<th>Grupo <?php echo $groups[$g]['id_group']; ?></th>
+				<th class="sm" title="Pontos">P</th>
 				<th class="sm">J</th>
 				<th class="sm">V</th>
 				<th class="sm">E</th>
@@ -55,7 +55,6 @@ if (empty($_POST)) {
 			<tr>
 				<td><?php echo $s+1; ?>º</td>
 				<td><?php echo $stand[$s]['team_name']; ?></td>
-				<td class="sm"><?php echo $stand[$s]['grupo']; ?></td>
 				<td class="sm highlight"><?php echo $stand[$s]['points']; ?></td>
 				<td class="sm"><?php echo $stand[$s]['plays']; ?></td>
 				<td class="sm"><?php echo $stand[$s]['wins']; ?></td>
@@ -75,6 +74,10 @@ if (empty($_POST)) {
 	</table>
 	<?php
 		}
+		?>
+			</div>
+		</div>
+		<?php
 	} 
 }
 

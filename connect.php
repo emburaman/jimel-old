@@ -265,9 +265,10 @@ class Database extends dbVariables {
 		$this->bind(':id_association', $u['id_association']);
 		$this->execute();
 		
-		$this->query('UPDATE es_athlete SET jersey_num = :jersey_num WHERE id_user = :id_user');
+		$this->query('UPDATE es_athlete SET jersey_num = :jersey_num, id_association=:id_association WHERE id_user = :id_user');
 		$this->bind(':jersey_num', $u['jersey_num']);
 		$this->bind(':id_user', $u['id_user']);
+		$this->bind(':id_association', $u['id_association']);
 		$this->execute();
 		
 		return true;
@@ -286,7 +287,7 @@ class Database extends dbVariables {
 		return true;
 	}
 
-	public function getTeams($e = null, $v = null, $c = null) {
+	public function getTeams($e = null, $v = null, $c = null, $o = null) {
 		$w = '';
 		if ($e != null) {
 			$w .= " entity_id = $e";
@@ -299,8 +300,11 @@ class Database extends dbVariables {
 			if ($w != '') { $w .= ' AND '; }
 			$w .= " id_category = $c";
 		}
+		if ($o != null) {
+			$o = $o .",";
+		}
 		if ($w != '') { $w = ' WHERE '. $w; }
-		$sql = 'SELECT * FROM vw_teams'. $w .' ORDER BY entity ASC, team_name ASC';
+		$sql = "SELECT * FROM vw_teams $w ORDER BY $o entity ASC, team_name ASC";
 		$this->query($sql);
 		$row = $this->resultset();
 		return $row;
@@ -359,7 +363,7 @@ class Database extends dbVariables {
 	}
 
 	public function updTeam($u = array()) {
-		$qry = 'UPDATE es_team SET name=:name, id_association=:id_association, id_category=:id_category, jersey_main_color=:color, id_event=:id_event, status=:status, group_id=:id_group WHERE id_team=:id_team';
+		$qry = 'UPDATE es_team SET name=:name, id_association=:id_association, id_category=:id_category, jersey_main_color=:color, id_event=:id_event, status=:status, id_group=:id_group, group_id=:id_group WHERE id_team=:id_team';
 		$this->query($qry);
 		$this->bind(':id_team', $u['id_team']);
 		$this->bind(':name', $u['name']);
@@ -487,7 +491,17 @@ class Database extends dbVariables {
 		if ($c) {
 			$w .= " WHERE id_category = $c AND id_event = 2";
 		}
-		$this->query('SELECT * FROM vw_games '. $w .' ORDER BY quadra ASC, date_time ASC');
+		$this->query('SELECT * FROM vw_games '. $w .' ORDER BY date_time ASC, quadra ASC, date_time ASC');
+		$rows = $this->resultset();
+		return $rows;
+	}
+	
+	public function getNextGames($c = null) {
+		$w = "";
+		if ($c) {
+			$w .= " AND id_category = $c";
+		}
+		$this->query('SELECT * FROM vw_games WHERE date_time > NOW() AND id_event = 2 '. $w .' ORDER BY date_time ASC, quadra ASC, date_time ASC LIMIT 0,5');
 		$rows = $this->resultset();
 		return $rows;
 	}
@@ -515,6 +529,8 @@ class Database extends dbVariables {
 	
 	public function delGame($id) {
 		$this->query('DELETE FROM es_game WHERE id_game = '. $id);
+		$this->execute();
+		$this->query('DELETE FROM es_score WHERE id_game = '. $id);
 		$this->execute();
 	}
 	
@@ -544,17 +560,174 @@ class Database extends dbVariables {
 		$sql = "SELECT * FROM vw_score WHERE id_game = $id_game AND id_subscription = $id_subscription $w";
 		$this->query($sql);
 		$rows = $this->resultset();
-		$results = array();
 		return $rows;
 	}
 	
-	public function endGame($id_game, $scrA, $scrB) {
+	public function getMotm($id_game) {
+		$sql = "SELECT * FROM vw_score WHERE id_game = $id_game AND id_score_type = 7 ORDER BY result DESC LIMIT 0,1";
+		$this->query($sql);
+		return $this->single();
+	}
+	
+	public function updStandings($id_game, $pastresult = null) {
+		$this->query("SELECT * FROM vw_games WHERE id_game = $id_game");
+		$teams = $this->single();
+
+		/* Get Team A Data */
+		$this->query("SELECT * FROM es_standings WHERE id_team = ". $teams['id_team_a']);
+		$counta = $this->resultset();
+		$counta = count($counta);
+		$this->query("SELECT id_subscription FROM es_subscription WHERE id_team = ". $teams['id_team_a']);
+		$membersA = $this->resultset();
+		$membersTeamA = '';
+		for ($i = 0; $i < $this->rowCount(); $i++) {
+			if ($membersTeamA != "") { $membersTeamA .= ','; }
+			$membersTeamA .= $membersA[$i]['id_subscription'];
+		}
+
+		/* Get Team B Data */
+		$this->query("SELECT * FROM es_standings WHERE id_team = ". $teams['id_team_b']);
+		$countb = $this->resultset();
+		$countb = count($countb);
+		$this->query("SELECT id_subscription FROM es_subscription WHERE id_team = ". $teams['id_team_b']);
+		$membersB = $this->resultset();
+		$membersTeamB = '';
+		for ($i = 0; $i < $this->rowCount(); $i++) {
+			if ($membersTeamB != "") { $membersTeamB .= ','; }
+			$membersTeamB .= $membersB[$i]['id_subscription'];
+		}
+		
+		/* Load Game Score */
+			/* Team A */
+				$scoreA = intval($teams['score_a']);
+				
+				/* 1 - Goals For */
+				$this->query("SELECT (
+															(SELECT SUM(value) from es_score WHERE id_game = $id_game AND id_score_type = 1 AND id_subscription IN ($membersTeamA)) + 
+															(SELECT SUM(value) from es_score WHERE id_game = $id_game AND id_score_type = 6 AND id_subscription IN ($membersTeamB))
+															) AS goals_for_a 
+											FROM es_score");
+				$goalsforA = $this->single();
+				$goalsforA = intval($goalsforA['goals_for_a']);
+				
+				/* 6 - Goals Against */
+				$this->query("SELECT (
+															(SELECT SUM(value) from es_score WHERE id_game = $id_game AND id_score_type = 1 AND id_subscription IN ($membersTeamB)) + 
+															(SELECT SUM(value) from es_score WHERE id_game = $id_game AND id_score_type = 6 AND id_subscription IN ($membersTeamA))
+															) AS goals_against_a 
+											FROM es_score");
+				
+				$goalsagainstA = $this->single();
+				$goalsagainstA = intval($goalsagainstA['goals_against_a']);
+				
+				/* 2 - Fouls */
+				$this->query("SELECT SUM(value) AS fouls_a from es_score WHERE id_game = $id_game AND id_score_type = 2 AND id_subscription IN ($membersTeamA)");
+				$foulsA = $this->single();
+				$foulsA = intval($foulsA['fouls_a']);
+				
+				/* 3 - Red Cards */
+				$this->query("SELECT SUM(value) AS reds_a from es_score WHERE id_game = $id_game AND id_score_type = 3 AND id_subscription IN ($membersTeamA)");
+				$redsA = $this->single();
+				$redsA = intval($redsA['reds_a']);
+				
+				/* 4 - Yellow Cards */
+				$this->query("SELECT SUM(value) AS yellows_a from es_score WHERE id_game = $id_game AND id_score_type = 4 AND id_subscription IN ($membersTeamA)");
+				$yellowsA = $this->single();
+				$yellowsA = intval($yellowsA['yellows_a']);
+		
+			/* Team B */
+				$scoreB = intval($teams['score_b']);
+
+				/* 1 - Goals For */
+				$this->query("SELECT (
+															(SELECT SUM(value) from es_score WHERE id_game = $id_game AND id_score_type = 1 AND id_subscription IN ($membersTeamB)) + 
+															(SELECT SUM(value) from es_score WHERE id_game = $id_game AND id_score_type = 6 AND id_subscription IN ($membersTeamA))
+															) AS goals_for_b 
+											FROM es_score");
+				$goalsforB = $this->single();
+				$goalsforB = intval($goalsforB['goals_for_b']);
+				
+				/* 6 - Goals Against */
+				$this->query("SELECT (
+															(SELECT SUM(value) from es_score WHERE id_game = $id_game AND id_score_type = 1 AND id_subscription IN ($membersTeamA)) + 
+															(SELECT SUM(value) from es_score WHERE id_game = $id_game AND id_score_type = 6 AND id_subscription IN ($membersTeamB))
+															) AS goals_against_b 
+											FROM es_score");
+				$goalsagainstB = $this->single();
+				$goalsagainstB = intval($goalsagainstB['goals_against_b']);
+				
+				/* 2 - Fouls */
+				$this->query("SELECT SUM(value) AS fouls_b from es_score WHERE id_game = $id_game AND id_score_type = 2 AND id_subscription IN ($membersTeamB)");
+				$foulsB = $this->single();
+				$foulsB = intval($foulsB['fouls_b']);
+				
+				/* 3 - Red Cards */
+				$this->query("SELECT SUM(value) AS reds_b from es_score WHERE id_game = $id_game AND id_score_type = 3 AND id_subscription IN ($membersTeamB)");
+				$redsB = $this->single();
+				$redsB = intval($redsB['reds_b']);
+				
+				/* 4 - Yellow Cards */
+				$this->query("SELECT SUM(value) AS yellows_b from es_score WHERE id_game = $id_game AND id_score_type = 4 AND id_subscription IN ($membersTeamB)");
+				$yellowsB = $this->single();
+				$yellowsB = intval($yellowsB['yellows_b']);
+
+
+		/* Save TEam A Standings */
+		if ($scoreA > $scoreB)  { $winsA   = 1; } else { $winsA   = 0; }
+		if ($scoreA < $scoreB)  { $lossesA = 1; } else { $lossesA = 0; }
+		if ($scoreA == $scoreB) { $drawsA  = 1; } else { $drawsA  = 0; }
+		if ($counta > 0) {
+			$sql = "UPDATE es_standings SET 
+																				plays = plays + 1, 
+																				wins = wins + $winsA, 
+																				losses = losses + $lossesA, 
+																				draws = draws + $drawsA, 
+																				goals_for = goals_for + $goalsforA,
+																				goals_against = goals_against + $goalsagainstA,
+																				fouls = fouls + $foulsA,
+																				reds = reds + $redsA,
+																				yellows = yellows + $yellowsA
+														WHERE id_team = ". $teams['id_team_a'];
+		} else {
+			$sql = "INSERT INTO es_standings VALUES (". $teams['id_team_a'] .", 1, $winsA, $drawsA, $lossesA, $goalsforA, $goalsagainstA, $redsA, $yellowsA, $foulsA)";
+		}
+		
+		$this->query($sql);
+		$this->execute();
+
+		/* Save Team B Standings */
+		if ($scoreA < $scoreB)  { $winsB   = 1; } else { $winsB   = 0; }
+		if ($scoreA > $scoreB)  { $lossesB = 1; } else { $lossesB = 0; }
+		if ($scoreA == $scoreB) { $drawsB  = 1; } else { $drawsB  = 0; }
+		if ($countb > 0) {
+			$sql = "UPDATE es_standings SET 
+																				plays = plays + 1, 
+																				wins = wins + $winsB, 
+																				losses = losses + $lossesB, 
+																				draws = draws + $drawsB, 
+																				goals_for = goals_for + $goalsforB,
+																				goals_against = goals_against + $goalsagainstB,
+																				fouls = fouls + $foulsB,
+																				reds = reds + $redsB,
+																				yellows = yellows + $yellowsB
+														WHERE id_team = ". $teams['id_team_b'];
+		} else {
+			$sql = "INSERT INTO es_standings VALUES (". $teams['id_team_b'] .", 1, $winsB, $drawsB, $lossesB, $goalsforB, $goalsagainstB, $redsB, $yellowsB, $foulsB)";
+		}
+		$this->query($sql);
+		$this->execute();
+	}
+	
+	public function endGame($id_game, $scrA, $scrB, $pastresult = null) {
 		$this->query("UPDATE es_game SET score_a = :score_a, score_b = :score_b, is_finished = 1 WHERE id_game = :id_game");
 		$this->bind(':id_game',$id_game);
 		$this->bind(':score_a',$scrA);
 		$this->bind(':score_b',$scrB);
 		$this->execute();
-		return $this->lastInsertId();
+		$last = $this->lastInsertId();
+
+		//$this->updStandings($id_game, $pastresult);
+		return $last;
 	}
 	
 	public function combo($arr) {
@@ -603,7 +776,7 @@ class Database extends dbVariables {
 		}
 		if ($id_group != null) {
 			if ($w != '') { $w .= " AND "; }
-			$w .= "grupo = '$id_group'";
+			$w .= "id_group = '$id_group'";
 		}
 		if ($w != '') { $w = "WHERE $w"; }
  		
@@ -611,7 +784,7 @@ class Database extends dbVariables {
 								id_team,
 								id_category,
 								team_name,
-								grupo,
+								id_group,
 								((wins * $wins) + (draws * $draws) + (losses * $losses)) AS points,
 								plays,
 								wins,
@@ -628,7 +801,7 @@ class Database extends dbVariables {
 										t.id AS id_team,
 												t.id_category AS id_category,
 												t.team_name AS team_name,
-												t.group AS grupo,
+												t.id_group AS id_group,
 												(SELECT 
 																COUNT(*)
 														FROM
@@ -672,12 +845,21 @@ class Database extends dbVariables {
 																		OR (g4.id_team_b = t.id
 																		AND g4.score_a > g4.score_b))) AS losses,
 												COALESCE((SELECT 
-																SUM(sc1.result)
+																SUM(g5.score_a)
 														FROM
-																vw_score AS sc1
+																es_game AS g5
 														WHERE
-																sc1.id_score_type = 1
-																		AND sc1.id_team = t.id), 0) AS goals_for,
+																g5.id_group IS NOT NULL
+																		AND g5.is_finished = 1
+																		AND g5.id_team_a = t.id), 0) + COALESCE((SELECT 
+																SUM(g6.score_b)
+														FROM
+																es_game AS g6
+														WHERE
+																g6.id_group IS NOT NULL
+																		AND g6.is_finished = 1
+																		AND g6.id_team_b = t.id), 0) AS goals_for,
+																		
 												COALESCE((SELECT 
 																SUM(g5.score_a)
 														FROM
@@ -693,6 +875,7 @@ class Database extends dbVariables {
 																g6.id_group IS NOT NULL
 																		AND g6.is_finished = 1
 																		AND g6.id_team_a = t.id), 0) AS goals_against,
+																		
 												COALESCE((SELECT 
 																SUM(sc3.result)
 														FROM
@@ -719,7 +902,7 @@ class Database extends dbVariables {
 								$w 
 								ORDER BY 
 										id_category ASC , 
-										grupo ASC , 
+										id_group ASC , 
 										points DESC , 
 										wins DESC , 
 										draws ASC , 
@@ -730,8 +913,9 @@ class Database extends dbVariables {
 										reds ASC , 
 										yellows ASC , 
 										fouls ASC ,
-										team_name ASC";
+										team_name ASC"; 
 
+		//$sql = "SELECT * FROM vw_standings_stored $w ORDER BY points DESC, wins DESC, draws ASC, losses ASC, goals_balance DESC, goals_for DESC, goals_against ASC, reds ASC, yellows ASC, fouls ASC, team_name ASC";
 		$this->query($sql);
 		$rows = $this->resultset();
 		return $rows;

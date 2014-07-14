@@ -7,25 +7,25 @@ if ($_POST['action'] == 'chg') {
   $rep = $_POST['re_password'];
   $err = '';
   if ($pwd == '' && $rep == '') {
-    $err .= "<span class='btn btn-danger'>O par de senhas informadas não pode ser vazio. Tente novamente!</span>";
+    $err .= '<div class="alert alert-dismissable alert-danger"><button type="button" class="close" data-dismiss="alert">×</button><strong>Oops!</strong> O par de senhas informadas não pode ser vazio. Tente novamente!</div>';
   } 
   elseif ($pwd <> $rep) {
-    $err .= "<span class='btn btn-danger'>O par de senhas informadas não coincidem. Tente novamente!</span>";
+    $err .= '<div class="alert alert-dismissable alert-danger"><button type="button" class="close" data-dismiss="alert">×</button><strong>Oops!</strong> O par de senhas informadas não coincidem. Tente novamente!</div>';
   } 
   elseif (!preg_match_all('$\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])(?=\S*[\W])\S*$', $pwd)) {
-    $err .= "<span class='btn btn-danger'>Sua senha não possui complexidade suficiente! <br/> Informe uma senha com no mínio 8 caracteres, sendo pelo menos: 
+    $err .= '<div class="alert alert-dismissable alert-danger"><button type="button" class="close" data-dismiss="alert">×</button><strong>Oops!</strong> Sua senha não possui complexidade suficiente! <br/> Informe uma senha com no mínio 8 caracteres, sendo pelo menos: 
     <ul>
     <li>Uma letra minúscula</li>
     <li>Uma letra maiúscula</li>
     <li>Uma algarismo</li>
     <li>Uma caracter especial</li>
-    </ul></span>";
+    </ul></div>';
   }
 }
 
 if ($_POST['action'] == 'login') {
 	if ($_POST['username'] == "" || $_POST['password'] == "") {
-		echo "<span class='btn btn-danger'>Preencha os campos corretamente.</span>";
+		echo '<div class="alert alert-dismissable alert-danger"><button type="button" class="close" data-dismiss="alert">×</button><strong>Oops!</strong> Preencha os campos corretamente.</div>';
 	} 
 	elseif (isset($_POST['username']) && isset($_POST['password'])) {
 		include_once('connect.php');
@@ -60,14 +60,14 @@ if (($count == 1 && $dados['chg_pwd'] > 0) || $_POST['action'] == 'chg') {
     <input type="hidden" name="action"   value="chg" />
 		<p class="mbl"><input type="password" placeholder="Digite sua senha" class="form-control" name="password" /></p>
 		<p class="mbl"><input type="password" placeholder="Repita sua senha" class="form-control" name="re_password" /></p>
-		<p class="mbl"><input type="submit" class="btn btn-primary btn-wide mrm" value="Alterar"/></p>
+		<p class="mbl"><input type="submit" class="btn btn-primary btn-lg mrm" value="Alterar"/></p>
 	</form>
 	<?php
 }
 /* ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20}) */
 
 if ($count == 0) {
-	echo "<span class='btn btn-warning'>Não foi encontrado um usuário com o login e senha informados.</span>";
+	echo '<div class="alert alert-dismissable alert-danger"><button type="button" class="close" data-dismiss="alert">×</button><strong>Oops!</strong> Não foi encontrado um usuário com o login e senha informados.</div>';
 }
 if ($count <= 0 && $_POST['action'] != 'chg') {
 	?>
@@ -77,8 +77,7 @@ if ($count <= 0 && $_POST['action'] != 'chg') {
 		<p class="mbl"><input type="text" placeholder="Digite seu login" class="form-control" name="username" /></p>
 		<p class="mbl"><input type="password" placeholder="Digite sua senha" class="form-control" name="password" /></p>
 		<p class="mbl">
-		<input type="submit" class="btn btn-primary btn-wide mrm" value="Logar"/>
-		<input type="reset"  class="btn btn-default btn-wide" value="Cancelar"/>
+		<input type="submit" class="btn btn-primary btn-lg mrm" value="Logar"/>
 		</p>
 	</form>
 	<?php

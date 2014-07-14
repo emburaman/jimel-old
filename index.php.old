@@ -1,10 +1,12 @@
 <?php
-include_once("header.php");
 if (isset($_COOKIE['jimeluser'])) {}
 ?>
+<?php
+include_once('header.php');
+?>
 
-<div id="regulamento" class="col-lg-8 col-md-8 col-xs-12 pull-right">
-	<h3>JIMEL - Regulamento Futsal 2014</h3>
+<div class="col-lg-7 col-md-7 col-xs-12">
+	<h4>JIMEL - Regulamento Futsal 2014</h4>
 	<div class="regulamento">
 	<p>CAPÍTULO I</p>
 	<p>Da Denominação e Participação</p>
@@ -64,12 +66,7 @@ if (isset($_COOKIE['jimeluser'])) {}
 	<p>Art. 10° - A inscrição das equipes participantes poderá ser feita até o dia 27/07/2014. Passado esse prazo não existe mais a possibilidade de inclusão da equipe no JIIMEL Futsal 2014. Atletas podem ser adicionados até a data do evento, mediante condição do parágrafo 4 do capítulo V.</p>
 	<p>§1º - O número total de equipes na competição está limitado a 60. &nbsp;A Comissão tem autoridade absoluta para tratar as exceções visando o melhor para todos. </p>
 	<p>§2º - A inscrição deverá ser feita no site: <a href="http://www.imel.org.br/esportes">www.jimel.com.br</a> pelo representante da igreja.</p>
-	<p>§3º - O pagamento das inscrições deverá ser realizado até o dia 01/08/2014, <strong>por igreja</strong>, via depósito ou transferência para a conta corrente que será informada (Somar R$0,05 (cinco centavos) para identificarmos o destino) e o comprovante de depósito enviado para <a href="mailto:luana.smizu@gmail.com">luana.simizu@gmail.com</a>.</p>
-	<p><strong>Banco Itaú<br />
-		 Ag. 0368<br />
-		 C/c. 06725-2<br />
-		 Igreja Metodista Livre<br />
-		 CNPJ: 53.587.242/0001-90</strong></p>
+	<p>§3º - O pagamento das inscrições deverá ser realizado até o dia 01/08/2014, por igreja, via depósito ou transferência para a conta corrente que será informada (Somar R$0,05 (cinco centavos) para identificarmos o destino) e o comprovante de depósito enviado para luana.simizu@gmail.com</p>
 	<p>§4º - O uso de uniforme da equipe será obrigatório. Camisas numeradas, calção e meião devem ser padronizados por equipe. Use a criatividade, invente o uniforme de sua equipe usando materiais que sejam acessíveis à condição financeira dos atletas.</p>
 	<p>CAPÍTULO VII</p>
 	<p>Das obrigações das igrejas</p>
@@ -91,7 +88,7 @@ if (isset($_COOKIE['jimeluser'])) {}
 	</div>
 </div>
 
-<div class="col-lg-4 col-md-4 col-xs-12">
+<div class="col-lg-4 col-md-4 col-xs-12 pull-right">
 	<h4>Estatísticas 2014</h4>
 	<?php
 	include_once('connect.php');
@@ -118,10 +115,10 @@ if (isset($_COOKIE['jimeluser'])) {}
 	if ($num == 1) { ?> igreja participante <?php } else { ?> igrejas participantes<?php } ?>.</p>
 </div>
 
-<div class="col-lg-4 col-md-4 col-xs-12">
+<div class="col-lg-4 col-md-4 col-xs-12 pull-right">
 	<div class="mapa">
 		<h4>Como chegar</h4>
-		<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14621.914123543282!2d-47.0661944!3d-23.6230278!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDM3JzIyLjkiUyA0N8KwMDMnNTguMyJX!5e0!3m2!1spt-BR!2s!4v1401587153513" width="100%" height="280" frameborder="0" style="border:0"></iframe>
+		<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14621.914123543282!2d-47.0661944!3d-23.6230278!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDM3JzIyLjkiUyA0N8KwMDMnNTguMyJX!5e0!3m2!1spt-BR!2s!4v1401587153513" width="370" height="280" frameborder="0" style="border:0"></iframe>
 		<h5><a href="http://paraiso48.com.br/" title="Paraíso 48" target="_blank">Paraíso 48</a></h5>
 		<p><strong>Estrada Municipal do Carmo, 1201</strong><br>
 		Km 48 da Rodovia Bunjiro Nakao (Saída no km 45 da rodovia Raposo Tavares)<br>
@@ -129,6 +126,15 @@ if (isset($_COOKIE['jimeluser'])) {}
 	</div>
 </div>
 
+<!--
+<div class="col-lg-4 col-md-4 col-xs-12 pull-right">
+	<div class="">
+		<h4>Como usar o sistema</h4>
+		<iframe width="100%" height="208" src="//www.youtube.com/embed/yWe0PxUEVoc" frameborder="0" allowfullscreen></iframe>
+	</div>
+</div>
+-->
+
 <?php
-include_once("bottom.php");
+include_once('bottom.php');
 ?>

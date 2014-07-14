@@ -1,52 +1,133 @@
 @charset "utf-8";
 /* CSS Document */
-body {
-  margin-bottom: 20px;
-}
-.col-xs-12 {
-  padding: 0;
+@media (max-width: 479px) {
+	.container {
+		width: 100%;
+		margin: 0;
+		padding: 0;
+	}
+	.panel-heading,
+	.panel-body {
+		padding: 5px;
+	}
+	.panel-primary {
+		margin-bottom: 1px;
+	}
 }
 
-@media (max-width: 768px) {
-  .mobile-hidden {
-    display: none;
-  }
+
+/* Default Margins */
+.mln {
+	margin-left: 0;
+}
+.mls {
+	margin-left: 5px;
+}
+.mlm {
+	margin-left: 10px;
+}
+.mll {
+	margin-left: 20px;
 }
 
-ul, li {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+
+#regulamento {
+	overflow: auto;
+	max-height: 600px;
 }
-.navbar {
-	margin-top: 10px;
+.modal {
+	display: block;
 }
-.navbar-brand {
-  height: auto;
-  overflow: hidden;
+
+table, .table {
+	font-size: 100%;
 }
-.navbar-header {
-  width: 100%;
+.table:last-child {
+	margin-bottom: 0;
 }
-.navbar-collapse.in {
-  overflow: hidden;
-  width: 100%;
+
+/* Sumula */
+.team-members {
+	width: 100%;
 }
-.salutation {
-  font-size: 80%;
-  margin: 0 10px 0 0;
+.team-members tr.teams {
+	background-color: #EFEFEF;
 }
-.salutation .navbar-btn.btn-xs {
-  margin: 0 0 0 10px;
+.team-members tr.teams h4 {
+	margin: 0;
 }
-.mbl {
-	margin-bottom: 15px;
+table.team-members>tbody>tr.teams>td {
+	vertical-align: middle;
 }
-h1 {
-	font-weight: 100;
-	letter-spacing: -0.05em;
-	line-height: 85%;
+.score {
+	font-size: 40px;
+	font-weight: 900;
+	line-height: 1;
 }
+.team {
+	font-size: 140%;
+}
+.team .goal {
+}
+
+.team button {
+  position: relative;
+  margin-left: 5px;
+}
+.team .btn .total {
+  background-color: red;
+  -moz-border-radius: 20px;
+  -webkit-border-radius: 20px;
+  border-radius: 20px; /* future proofing */
+	color: #FFF;
+  display: block;
+  font-size: 8px;
+  font-weight: 900;
+  height: 16px;
+  line-height: 10px;
+  padding: 3px 3px 3px 1px;
+  position: absolute;
+  right: -3px;
+  top: -5px;
+  width: 16px;
+}
+
+.sumula .sprite {
+	background: url(../images/sumula.fw.png) 0px 0px no-repeat;
+	display: block;
+	height: 32px;
+	width: 32px;
+}
+.sumula .sprite.own-goal {
+	background-position: -64px 0px;
+}
+.sumula .sprite.foul {
+	background-position: -246px 0px;
+}
+.sumula .sprite.red-card {
+	background-position: -182px 0px;
+	width: 20px;
+}
+.sumula .sprite.yellow-card {
+	background-position: -128px 0px;
+	width: 20px;
+}
+
+.classificacao .sm {
+	text-align: center;
+	width: 5%;
+}
+.classificacao .sm.highlight {
+	font-size: 130%;
+	font-weight: 900;
+}
+@media (max-width: 767px) {
+	.classificacao .mobile-hidden {
+		display: none;
+	}
+}
+
+/* Color picker */
 #colorpicker {
 	background-color: #FFF;
 	border: 3px solid black;
@@ -63,129 +144,12 @@ h1 {
   box-shadow:         0 0 5px 0 #000;
 }
 
-.right {
-	float: right;
-}
-.btn-xs {
-	margin-left: 5px;
-}
-
-.checkbox sup {
-	color: #EFEFEF;
-}
-td {
-  padding: 3px 5px;
-}
-
-.team-members {
-	width: 100%;
-}
-.team-members tr.teams {
-	background-color: #EFEFEF;
-}
-.score {
-	font-size: 40px;
-	font-weight: 900;
-}
-.team .goal {
-  padding-right: 15px;
-}
-
-.team button {
-  position: relative;
-  margin-left: 15px;
-}
-.team .total {
-  background-color: red;
-  -moz-border-radius: 20px;
-  -webkit-border-radius: 20px;
-  border-radius: 20px; /* future proofing */
-  display: block;
-  font-size: 8px;
-  font-weight: 900;
-  height: 16px;
-  line-height: 10px;
-  padding: 3px;
-  position: absolute;
-  right: -3px;
-  top: -3px;
-  width: 16px;
-}
-.regulamento {
-	height: 450px;
-  padding-right: 10px;
-	overflow-x: hidden;
-	overflow-y: scroll;
-}
-  ::-webkit-scrollbar {
-    background-color: #CCC;
-    width: 5px;
-  }
-   
-  ::-webkit-scrollbar-track {
-  }
-   
-  ::-webkit-scrollbar-thumb {
-    background-color: #999;
-  }
-
-.regulamento p,
-.mapa p {
-	font-size: 80%;
-	line-height: 120%;
-}
-table.classificacao th.sm {
-	font-size: 80%;
-	text-align: center;
-}
-table.classificacao td.sm {
-	font-size: 85%;
-	text-align: center;
-	vertical-align: middle;
-	width: 6%;
-}
-table.classificacao td.sm.highlight {
-	font-size: 120%;
-	font-weight: 900;
-}
-span.btn {
-  white-space: normal;
-}
-
-.team-color {
-	cursor: default;
-}
-.mandatory {
-  color: #F00;
-}
-p.small {
-	color: #CCC;
-	line-height: 120%;
-}
-strong {
-	font-weight: 900;
-}
-.schedule td {
-	text-align: center;
-}
-.schedule td p {
+.ticker,
+.upcomming-ticker {
 	margin: 0;
+	padding: 0;
+	list-style: none;
 }
-.table .feminino {
-	background-color: #F9F;
-}
-.table .mirim {
-	background-color: #CF0;
-}
-.table .junior {
-	background-color: #0CF;
-}
-.table .senior {
-	background-color: #9CC;
-}
-.table .master {
-	background-color: #C9F;
-}
-.table .veteranos {
-	background-color: #FC6;
+.upcomming-ticker table {
+	height: 50px;
 }

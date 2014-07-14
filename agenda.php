@@ -1,5 +1,14 @@
 <?php
 include_once('header.php');
+if (!isset($_COOKIE['jimeluser'])) { ?>
+	<div class="alert alert-dismissable alert-warning">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<h4>Atenção!</h4>
+		<p>Você precisa estar logado para acessar esta página. Faça login <a href="login.php" class="alert-link">clicando aqui</a>.</p>
+	</div><?php
+	exit;
+}
+
 
 include_once('connect.php');
 $db = new Database();

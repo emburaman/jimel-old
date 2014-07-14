@@ -1,7 +1,12 @@
 <?php
 include_once('header.php');
 if (!isset($_COOKIE['jimeluser'])) {
-	echo "<span class='btn btn-danger'>Você não tem permissão para visualizar esta página.</span>";
+?>
+	<div class="alert alert-dismissable alert-warning">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<h4>Atenção!</h4>
+		<p>Você precisa estar logado para acessar esta página. Faça login <a href="login.php" class="alert-link">clicando aqui</a>.</p>
+	</div><?php
 	exit;
 }
 
@@ -54,10 +59,10 @@ if ($_REQUEST['action'] == 'mass') {
 
 
 /* New/Edit athlete */
-if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
+if ($_POST['action'] == 'new' || $_POST['action'] == 'edit' || $_POST['action'] == 'del') {
 	$status = 1;
 	if ($_POST['action'] == 'new') {	echo "<h1>Novo Atleta</h1>"; }
-	if ($_POST['action'] == 'edit') {
+	if ($_POST['action'] == 'edit' || $_POST['action'] == 'del') {
 		echo "<h1>Editando Atleta</h1>"; 
 		
 		$dados = $db->getAthlete($_POST['id_user']);
@@ -152,13 +157,13 @@ if ($_POST['action'] == 'save') {
 	} 
 	
 	if ($errmsg <> '') {
-		echo '<div class="btn btn-danger mbl">'. $errmsg .'</div>';
+		echo '<div class="alert alert-dismissable alert-danger"><button type="button" class="close" data-dismiss="alert">×</button><strong>Oops!</strong><br />'. $errmsg .'</div>';
 	}
 }
 
-if ($_POST['action'] == 'new' || $_POST['action'] == 'edit' || $err > 0) {
+if ($_POST['action'] == 'new' || $_POST['action'] == 'edit' || $_POST['action'] == 'del' || $err > 0) {
 	?>
-	<form method="post" action="atletas.php">
+	<form class="form-horizontal" method="post" action="atletas.php">
 	  <input type="hidden" name="id_user" value="<?php echo $_POST['id_user']; ?>" />
 	  <input type="hidden" name="id_event" value="2" />
 
@@ -166,52 +171,85 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit' || $err > 0) {
 		<input type="hidden" name="id_association" value="<?php echo $_COOKIE['jimeluser']['association']; ?>" />
 		<?php } ?>
 
-		<p class="mbl"><input type="text"  name="fname" placeholder="Nome" class="form-control" value="<?php echo $fname; ?>" /></p>
-		<p class="mbl"><input type="text"  name="lname" placeholder="Sobrenome" class="form-control" value="<?php echo $lname; ?>" /></p>
-		<p class="mbl"><input type="text" name="jersey_num" placeholder="Número do Atleta" class="form-control" value="<?php echo $jersey_num; ?>" /></p>
-		<p class="mbl"><input type="email" name="email" placeholder="Email" class="form-control" value="<?php echo $email; ?>" /></p>
-		<p class="mbl"><input type="text"  name="bdate" placeholder="Data de Nascimento" class="form-control" value="<?php echo $birthdate; ?>" /></p>
-		<p class="mbl"><input type="text"  name="rg" placeholder="RG" class="form-control" value="<?php echo $rg; ?>" /></p>
-		<p class="mbl"><input type="text"  name="cpf" placeholder="CPF" class="form-control" value="<?php echo $cpf; ?>" /></p>
-		<p class="mbl clearfix">
-			<label class="radio pull-left"><input type="radio" id="gender" name="gender" value="M" data-toggle="radio" <?php if ($gender == 'M') { echo "checked";} ?>>Masculino</label>
-			<label class="radio pull-left mll"><input type="radio" id="gender" name="gender" value="F" data-toggle="radio" <?php if ($gender == 'F') { echo "checked";} ?>>Feminino</label>
-		</p>
+		<fieldset>
+	<div class="well bs-component">
+			<div class="form-group"><label for="fname" class="col-lg-2 control-label">Nome</label>
+				<div class="col-lg-10"><input type="text"  name="fname" placeholder="Nome" class="form-control" value="<?php echo $fname; ?>" /></div>
+			</div>
+			<div class="form-group"><label for="lname" class="col-lg-2 control-label">Sobreome</label>
+				<div class="col-lg-10"><input type="text"  name="lname" placeholder="Sobrenome" class="form-control" value="<?php echo $lname; ?>" /></div>
+			</div>
+			<div class="form-group"><label for="jersey_num" class="col-lg-2 control-label">Número do Atleta</label>
+				<div class="col-lg-10"><input type="text" name="jersey_num" placeholder="Número do Atleta" class="form-control" value="<?php echo $jersey_num; ?>" /></div>
+			</div>
+			<div class="form-group"><label for="email" class="col-lg-2 control-label">E-Mail</label>
+				<div class="col-lg-10"><input type="email" name="email" placeholder="E-Mail" class="form-control" value="<?php echo $email; ?>" /></div>
+			</div>
+			<div class="form-group"><label for="bdate" class="col-lg-2 control-label">Data de Nascimento</label>
+				<div class="col-lg-10"><input type="text"  name="bdate" placeholder="Data de Nascimento" class="form-control" value="<?php echo $birthdate; ?>" /></div>
+			</div>
+			<div class="form-group"><label for="rg" class="col-lg-2 control-label">RG</label>
+				<div class="col-lg-10"><input type="text"  name="rg" placeholder="RG" class="form-control" value="<?php echo $rg; ?>" /></div>
+			</div>
+			<div class="form-group"><label for="cpf" class="col-lg-2 control-label">CPF</label>
+				<div class="col-lg-10"><input type="text"  name="cpf" placeholder="CPF" class="form-control" value="<?php echo $cpf; ?>" /></div>
+			</div>
+			<div class="form-group"><label class="col-lg-2 control-label">Gênero</label>
+				<div class="col-lg-10">
+					<div class="radio"><label><input type="radio" name="gender" id="gender" value="M" <?php if ($gender == 'M') { echo "checked";} ?>>Masculino</label></div>
+					<div class="radio"><label><input type="radio" name="gender" id="gender" value="F" <?php if ($gender == 'F') { echo "checked";} ?>>Feminino</label>
+					</div>
+				</div>
+			</div>
 
-		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
-		<p class="mbl"><select name="id_association" class="form-control"><option>< Selecione uma entidade ></option><?php
-			$ents = $db->getEntities();
-		  for ($i = 0; $i < $db->rowCount(); $i++) {
-				$chk = '';
-				if (isset($dados['id_association']) && ($ents[$i]['id_association'] == $dados['id_association'])) {
-					$chk = 'selected';
-				}
-				echo "<option value='". $ents[$i]['id_association'] ."' $chk>". $ents[$i]['name'] ."</option>";
-			} ?></select></p>
-		<?php } ?>
+			<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
+			<div class="form-group"><label for="id_association" class="col-lg-2 control-label">Entidade</label>
+				<div class="col-lg-10">
+					<select name="id_association" class="form-control"><option>< Selecione uma entidade ></option><?php
+					$ents = $db->getEntities();
+					for ($i = 0; $i < $db->rowCount(); $i++) {
+						$chk = '';
+						if (isset($dados['id_association']) && ($ents[$i]['id_association'] == $dados['id_association'])) {
+							$chk = 'selected';
+						}
+						echo "<option value='". $ents[$i]['id_association'] ."' $chk>". $ents[$i]['name'] ."</option>";
+					} ?></select>
+				</div>
+			</div>
+			<div class="form-group"><label class="col-lg-2 control-label">Status</label>
+				<div class="col-lg-10">
+					<div class="radio"><label><input type="radio" name="status" value="1" data-toggle="radio" <?php if ($status == 1) { echo "checked";} ?>>Ativo</label></div>
+					<div class="radio"><label><input type="radio" name="status" value="2" data-toggle="radio" <?php if ($status == 0) { echo "checked";} ?>>Inativo</label>
+					</div>
+				</div>
+			</div>
+			<?php } else { ?>
+			<input type="hidden" name="status" value="<?php echo $status; ?>" />
+			<?php } ?>
+	</div>
 
-		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
-		<p class="mbl clearfix">
-			<label class="radio pull-left"><input type="radio" name="status" value="1" data-toggle="radio" <?php if ($status == 1) { echo "checked";} ?>>Ativo</label>
-			<label class="radio pull-left mll"><input type="radio" name="status" value="2" data-toggle="radio" <?php if ($status == 0) { echo "checked";} ?>>Inativo</label>
-		</p>
-		<?php } else { ?>
-		<input type="hidden" name="status" value="<?php echo $status; ?>" />
-		<?php } ?>
-		<?php if ($id_subscription == '') { ?>
-		<button type="submit" class="btn btn-primary btn-sm mrm pull-left" name="action" value="save">Salvar</button>
-	</form>
-		<?php } ?>
-		<?php if ($id_subscription != '') { ?></form>
-		<form class='pull-left' method='post' action='escalacao.php'><input type='hidden' name='action' value='edit' /><p class="small pull-left">Este atleta já está inscrito na equipe <button class="btn btn-default btn-xs" name="id_team" value="<?php echo $id_team; ?>"><?php echo $team_name; ?></button><br />Para alterar os dados cadastrais, primeiro remova-o da equipe.</p></form>
-		<?php } ?>
-	<form class="pull-right" method="post" action="atletas.php">
-	<?php if ($_POST['action'] == 'edit' && $closed == 0) { ?>
-		<input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>">
-		<input type="hidden" name="name" value="<?php echo $fname ." ". $lname; ?>">
-		<button name="action" class="btn btn-danger btn-sm pull-right mll" value="del">Excluir</button>
-	<?php } ?>
-		<button name="action" class="btn btn-default btn-sm pull-right" value="back">Voltar</button>
+			<?php if ($id_subscription != '') { ?></form>
+			<div class="alert alert-warning">
+				<form class='pull-left' method='post' action='escalacao.php'><input type='hidden' name='action' value='edit' />
+				<h4>Atenção!</h4>
+				<p>Este atleta já está inscrito na equipe <button class="btn btn-info btn-xs" name="id_team" value="<?php echo $id_team; ?>"><?php echo $team_name; ?></button><br />Para alterar os dados cadastrais, primeiro remova-o da escalação da equipe.</p>
+			</div>
+			<?php } ?>
+
+			<div class="form-group">
+				<div class="col-lg-12">
+				<?php if ($id_subscription == '') { ?>
+				<button class="btn btn-primary btn-lg mrm pull-left" name="action" value="save"><span class="glyphicon glyphicon-floppy-disk fa-margin-right"></span>Salvar</button>
+				<?php } ?>
+				<?php if ($_POST['action'] == 'edit' && $closed == 0) { ?>
+					<input type="hidden" name="id_user" value="<?php echo $dados['id_user']; ?>">
+					<input type="hidden" name="name" value="<?php echo $fname ." ". $lname; ?>">
+					<button name="action" class="btn btn-danger btn-lg pull-right mll" value="del"><span class="fa fa-lg fa-trash-o fa-margin-right"></span>Excluir</button>
+				<?php } ?>
+					<button name="action" class="btn btn-default btn-lg pull-right" value="back"><span class="fa fa-lg fa-angle-left fa-margin-right"></span>Voltar</button>
+				</div>
+			</div>
+		</fieldset>
 	</form>
 	<?php
 }
@@ -225,18 +263,28 @@ elseif ($err <= 0 && $_POST['action'] == 'save') {
 }
 
 if ($_POST['action'] == 'del') { ?>
-	<h1>Excluir Atleta</h1>
-	<div class="btn btn-danger mbl">Deseja realmente excluir o atleta <strong><?php echo $_POST['name']; ?></strong>? Isso não poderá ser desfeito!<br />
-Caso este atleta esteja escalado em alguma equipe, sua escalação também será removida.</div>
-	<div class="clearfix">
-	<input type="submit"  class="btn btn-default btn-wide pull-left" value="Não" onclick="javascript:history.back(-1);"/>
-	<form class="pull-right" method="post" action="atletas.php">
-		<input type="hidden" name="id_user" value="<?php echo $_POST['id_user']; ?>">
-		<input type="hidden" name="action" value="del_yes">
-		<input type="submit"  class="btn btn-danger btn-wide pull-right" value="Excluir"/>
-	</form>
+	<div class="modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> -->
+					<h4 class="modal-title">Excluir Atleta?</h4>
+				</div>
+				<div class="modal-body">
+					<p>Deseja realmente excluir o atleta <strong><?php echo $_POST['name']; ?></strong>?</p>
+					<p><strong>Isso não poderá ser desfeito! </strong>Caso este atleta esteja escalado em alguma equipe, sua escalação também será removida.</p>
+				</div>
+				<div class="modal-footer">
+					<input type="submit"  class="btn btn-success pull-left" value="Não" onclick="javascript:history.back(-1);"/>
+					<form class="pull-right" method="post" action="atletas.php">
+						<input type="hidden" name="id_user" value="<?php echo $_POST['id_user']; ?>">
+						<input type="hidden" name="action" value="del_yes">
+						<input type="submit"  class="btn btn-danger pull-right" value="Sim"/>
+					</form>
+				</div>
+			</div>
+		</div>
 	</div>
-
 <?php
 }
 
@@ -248,7 +296,7 @@ if ($_POST['action'] == 'del_yes') {
 if (empty($_POST) || $_POST['action'] == 'back') {
 	/* List athletes */
 	if ($closed == 0) {
-		echo "<form class='pull-right' method='post' action='atletas.php'><button class='btn btn-primary btn-sm' name='action' value='new'><span class='fui-plus'></span> Novo Atleta</button></form>";
+		echo "<form class='pull-right' method='post' action='atletas.php'><button class='btn btn-primary btn-lg' name='action' value='new'><span class='fa fa-plus fa-margin-right'></span> Adicionar Atleta</button></form>";
 	}
 	echo "<h1>Atletas</h1>";
 	if ($_COOKIE['jimeluser']['profile'] < 3) {
@@ -283,7 +331,7 @@ if (empty($_POST) || $_POST['action'] == 'back') {
 			echo "<td class='mobile-hidden'>$newDate</td>";
 			echo "<td>". $dados[$i]['age'] ."</td>";
 			echo "<td>". $dados[$i]['gender'] ."</td>";
-			echo "<td><button class='btn btn-primary btn-xs' name='id_user' value='". $dados[$i]['id_user'] ."'><span class='fui-new'></span> Editar</button></td>";		
+			echo "<td width=1><button class='btn btn-info btn-xs' name='id_user' value='". $dados[$i]['id_user'] ."'><span class='fa fa-pencil fa-margin-right'></span>Editar</button></td>";		
 			echo "</tr>";
 		}
 		echo "</form>";

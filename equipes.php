@@ -1,7 +1,11 @@
 <?php
 include_once('header.php');
-if (!isset($_COOKIE['jimeluser'])) {
-	echo "<span class='btn btn-danger'>Você não tem permissão para visualizar esta página.</span>";
+if (!isset($_COOKIE['jimeluser'])) { ?>
+	<div class="alert alert-dismissable alert-warning">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<h4>Atenção!</h4>
+		<p>Você precisa estar logado para acessar esta página. Faça login <a href="login.php" class="alert-link">clicando aqui</a>.</p>
+	</div><?php
 	exit;
 }
 
@@ -45,16 +49,15 @@ if ($_REQUEST['action'] == 'mass') {
 
 
 /* New/Edit athlete */
-if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
+if ($_POST['action'] == 'new' || $_POST['action'] == 'edit' || $_POST['action'] == 'del') {
 	$status = 1;
 	if ($_POST['action'] == 'new') {
 		echo "<h1>Nova Equipe</h1>";
 		$color = '#FFFFFF';
 	}
 	/* Edit */
-	if ($_POST['action'] == 'edit') {
-		echo "<a class='btn btn-default btn-wide pull-right' href='equipes.php'/>Voltar</a>
-		      <h1>Editando Equipe</h1>"; 
+	if ($_POST['action'] == 'edit' || $_POST['action'] == 'del') {
+		echo "<h1>Editando Equipe</h1>"; 
 		
 		$dados = $db->getTeam($_POST['id_team']);
 		$count = $db->rowCount();
@@ -62,31 +65,41 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 		$category       = $dados['id_category'];
 		$color          = $dados['color'];
 		$status         = $dados['status'];
-		$group          = $dados['group'];
+		$group          = $dados['id_group'];
 		$id_association = $dados['entity_id'];
 		
 		/* Check if there is any athlete subscribed */
 		$any = $db->getSubscribed($dados['id'], $dados['id_event']);
 		$any = $db->rowCount();
 	}
+	if ($any > 0) {	?>
+		<div class="alert alert-dismissable alert-info">
+			<button type="button" class="close" data-dismiss="alert">×</button>
+			<strong>Nota:</strong> <br />Existe pelo menos um atleta inscrito nesta equipe; para alterar a categoria deste time, primeiro remova os atletas.</div>
+	<?php } ?>
 
-	?>
-	<form method="post" action="equipes.php">
+	<form class="form-horizontal" method="post" action="equipes.php">
 	  <input type="hidden" name="id_team" value="<?php echo $_POST['id_team']; ?>" />
-
 		<?php if (($_POST['action'] == 'new' || $_POST['action'] == 'edit') && $_COOKIE['jimeluser']['profile'] < 3) { ?>
 		<input type="hidden" name="id_association" value="<?php echo $_COOKIE['jimeluser']['association']; ?>" />
 		<?php } ?>
-
-
 		<?php if ($_COOKIE['jimeluser']['profile'] < 3) { ?>
 		<input type="hidden" name="id_event" value="<?php echo $dados['id_event']; ?>" />
 		<?php } ?>
-		<p class="mbl"><input type="text"  name="name" placeholder="Nome da Equipe" class="form-control" value="<?php echo $name; ?>" /></p>
-		<p class="mbl"><input type="text" id ="color" name="color" placeholder="Escolha uma cor" class="form-control" value="<?php echo $color; ?>" /></p>
+
+		<fieldset>
+		<div class="well bs-component">
+			<div class="form-group"><label for="name" class="col-lg-2 control-label">Nome da Equipe</label>
+				<div class="col-lg-10"><input type="text"  name="name" placeholder="Nome da Equipe" class="form-control" value="<?php echo $name; ?>" /></div>
+			</div>
+
+			<div class="form-group"><label for="name" class="col-lg-2 control-label" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Tooltip on bottom">Cor do Uniforme</label>
+				<div class="col-lg-10"><input type="text" id ="color" name="color" placeholder="Escolha uma cor" class="color {hash:true} form-control" value="<?php echo $color; ?>" /></div>
+			</div>
 		
 		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
-		<p class="mbl"><select name="id_association" class="form-control"><option>< Selecione uma entidade ></option><?php
+			<div class="form-group"><label for="id_association" class="col-lg-2 control-label">Entidade</label>
+				<div class="col-lg-10"><select name="id_association" class="form-control"><option>< Selecione uma entidade ></option><?php
 			$conne = new Database();
 			$ents = $conne->getEntities();
 		  for ($i = 0; $i < $conne->rowCount(); $i++) {
@@ -95,30 +108,32 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 					$chk = 'selected';
 				}
 				echo "<option value='". $ents[$i]['id_association'] ."' $chk>". $ents[$i]['name'] ."</option>";
-			} ?></select></p>
+			} ?></select></div>
+			</div>
 		<?php } ?>
 
-		<p class="mbl"><?php
+		<?php
 		if ($any > 0) {
-			$dis = ' disabled="disabled"';
-			$msg = '<p class="small">Existe pelo menos um atleta inscrito nesta equipe; para alterar a categoria, primeiro remova os atletas.</p>'; ?>
+			$dis = ' disabled="disabled"';  ?>
 		<input type="hidden" name="id_category" value="<?php echo $dados['id_category']; ?>" />
 		<?php } ?>
-		<select name="id_category" class="form-control" <?php echo $dis; ?>>
-			<option>< Selecione uma categoria ></option><?php
-			$connc = new Database();
-			$cats = $connc->getCategories();
-		  for ($i = 0; $i < $connc->rowCount(); $i++) {
-				$chk = '';
-				if (isset($dados['id_category']) && ($cats[$i]['id_category'] == $dados['id_category'])) {
-					$chk = 'selected';
-				}
-				echo "<option value='". $cats[$i]['id_category'] ."' $chk>". $cats[$i]['name'] ."</option>";
-			} ?></select>
-			<?php echo $msg; ?></p>
+		<div class="form-group"><label for="id_category" class="col-lg-2 control-label">Categoria</label>
+			<div class="col-lg-10"><select name="id_category" class="form-control" <?php echo $dis; ?>>
+		<option>< Selecione uma categoria ></option><?php
+		$connc = new Database();
+		$cats = $connc->getCategories();
+		for ($i = 0; $i < $connc->rowCount(); $i++) {
+			$chk = '';
+			if (isset($dados['id_category']) && ($cats[$i]['id_category'] == $dados['id_category'])) {
+				$chk = 'selected';
+			}
+			echo "<option value='". $cats[$i]['id_category'] ."' $chk>". $cats[$i]['name'] ."</option>";
+		} ?></select></div>
+		</div>
 
 		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
-		<p class="mbl"><select name="id_event" class="form-control"><option>< Selecione um evento ></option><?php
+			<div class="form-group"><label for="id_event" class="col-lg-2 control-label">Evento</label>
+				<div class="col-lg-10"><select name="id_event" class="form-control"><option>< Selecione um evento ></option><?php
 			$connv = new Database();
 			$evts = $connv->getEvents();
 		  for ($i = 0; $i < $connv->rowCount(); $i++) {
@@ -127,49 +142,51 @@ if ($_POST['action'] == 'new' || $_POST['action'] == 'edit') {
 					$chk = 'selected';
 				}
 				echo "<option value='". $evts[$i]['id_event'] ."' $chk>". $evts[$i]['name'] ."</option>";
-			} ?></select></p>
+			} ?></select></div>
+			</div>
 		<?php
 		} else {
 			echo '<input type="hidden" name="id_event" value="2" />';
 		} ?>
     
-		<?php if ($_COOKIE['jimeluser']['profile'] >= 3 && $_POST['action'] == 'edit') { ?>
-		<p class="mbl"><select name="id_group" class="form-control"><option>< Selecione um Grupo ></option><?php
+		<?php if ($_COOKIE['jimeluser']['profile'] >= 3 && ($_POST['action'] == 'edit' || $_POST['action'] == 'del')) { ?>
+			<div class="form-group"><label for="id_group" class="col-lg-2 control-label">Grupo</label>
+				<div class="col-lg-10"><select name="id_group" class="form-control"><option>< Selecione um Grupo ></option><?php
 			$db->query('SELECT * FROM es_group WHERE id_category = '. $dados['id_category']);
       $gp = $db->resultset();
-      p($dados['group']);
 		  for ($i = 0; $i < $db->rowCount(); $i++) {
 				$chk = '';
-				if (isset($dados['group']) && ($gp[$i]['id_group'] == $dados['group'])) {
+				if (isset($group) && ($gp[$i]['id_group'] == $group)) {
 					$chk = 'selected';
 				}
 				echo "<option value='". $gp[$i]['id_group'] ."' $chk>". $gp[$i]['id_group'] ."</option>";
-			} ?></select></p>
+			} ?></select></div>
+			</div>
 		<?php
 		} else {
-			echo '<input type="hidden" name="id_group" value="'. $dados['group'] .'" />';
+			echo '<input type="hidden" name="id_group" value="'. $group .'" />';
 		} ?>
 
 		<?php if ($_COOKIE['jimeluser']['profile'] >= 3) { ?>
-		<p class="mbl clearfix">
-			<label class="radio pull-left"><input type="radio" name="status" value="1" data-toggle="radio" <?php if ($status == 1) { echo "checked";} ?>>Ativo</label>
-			<label class="radio pull-left mll"><input type="radio" name="status" value="2" data-toggle="radio" <?php if ($status == 0) { echo "checked";} ?>>Inativo</label>
-		</p>
+		<div class="form-group"><label class="col-lg-2 control-label">Status</label>
+			<div class="col-lg-10">
+				<div class="radio"><label><input type="radio" name="status" value="1" data-toggle="radio" <?php if ($status == 1) { echo "checked";} ?>>Ativo</label></div>
+				<div class="radio"><label><input type="radio" name="status" value="2" data-toggle="radio" <?php if ($status == 0) { echo "checked";} ?>>Inativo</label>
+				</div>
+			</div>
+		</div>
 		<?php } else { ?>
 		<input type="hidden" name="status" value="<?php echo $status; ?>" />
 		<?php } ?>
 
-		<button type="submit" class="btn btn-primary btn-wide mrm pull-left" name="action" value="save">Salvar</button>
-	</form>
-	
-	<form class="pull-right" method="post" action="equipes.php">
-	<?php if ($_POST['action'] == 'edit' && $closed == 0) { ?>
-		<input type="hidden" name="id_team" value="<?php echo $_POST['id_team']; ?>">
-		<input type="hidden" name="action" value="del">
-		<input type="hidden" name="name" value="<?php echo $name; ?>">
-		<input type="submit"  class="btn btn-danger btn-wide pull-right" value="Excluir"/>
-	<?php } ?>
-		<button name="action" class="btn btn-default btn-sm pull-right" value="back">Voltar</button>
+	</div>
+
+			<button class="btn btn-primary btn-lg mrm pull-left" name="action" value="save"><span class="glyphicon glyphicon-floppy-disk fa-margin-right"></span>Salvar</button>
+			<?php if ($_POST['action'] == 'edit' && $closed == 0) { ?>
+			<button name="action" class="btn btn-danger btn-lg pull-right mll" value="del"><span class="fa fa-lg fa-trash-o fa-margin-right"></span>Excluir</button>
+			<?php } ?>
+			<button name="action" class="btn btn-default btn-lg pull-right" value="back"><span class="fa fa-lg fa-angle-left fa-margin-right"></span>Voltar</button>
+		</fieldset>
 	</form>
 	<div id="colorpicker"></div>
 	<?php
@@ -213,17 +230,28 @@ elseif ($_POST['action'] == 'save') {
 }
 
 if ($_POST['action'] == 'del') { ?>
-	<h1>Excluir Atleta</h1>
-	<div class="btn btn-danger mbl">Deseja realmente excluir a Equipe <strong><?php echo $_POST['name']; ?></strong>? A associação de atletas a esta equipe serão removidos.</div>
-	<div class="clearfix">
-	<input type="submit"  class="btn btn-default btn-wide pull-left" value="Não" onclick="javascript:history.back(-1);"/>
-	<form class="pull-right" method="post" action="equipes.php">
-		<input type="hidden" name="id_team" value="<?php echo $_POST['id_team']; ?>">
-		<input type="hidden" name="action" value="del_yes">
-		<input type="submit"  class="btn btn-danger btn-wide pull-right" value="Excluir"/>
-	</form>
+	<div class="modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> -->
+					<h4 class="modal-title">Excluir Equipe?</h4>
+				</div>
+				<div class="modal-body">
+					<p>Deseja realmente excluir a Equipe <strong><?php echo $_POST['name']; ?></strong>?</p>
+					<p>Todos os dados de partidas referente a esta equipe serão perdidos. A associação de atletas a esta equipe serão removidos.</p>
+				</div>
+				<div class="modal-footer">
+					<input type="submit"  class="btn btn-success pull-left" value="Não" onclick="javascript:history.back(-1);"/>
+					<form class="pull-right" method="post" action="equipes.php">
+						<input type="hidden" name="id_team" value="<?php echo $_POST['id_team']; ?>">
+						<input type="hidden" name="action" value="del_yes">
+						<input type="submit"  class="btn btn-danger pull-right" value="Sim"/>
+					</form>
+				</div>
+			</div>
+		</div>
 	</div>
-
 <?php
 }
 
@@ -235,7 +263,7 @@ if ($_POST['action'] == 'del_yes') {
 if (empty($_POST) || $_POST['action'] == 'back') {
 	/* List athletes */
 	if ($closed == 0) {
-		echo "<form class='pull-right' method='post' action='equipes.php'><button class='btn btn-primary' name='action' value='new'><span class='fui-plus'></span> Adicionar Equipe</button></form>";
+		echo "<form class='pull-right' method='post' action='equipes.php'><button class='btn btn-primary btn-lg' name='action' value='new'><span class='fa fa-plus fa-margin-right'></span> Adicionar Equipe</button></form>";
 	}
 	echo "<h1>Equipes</h1>";
 	if ($_COOKIE['jimeluser']['profile'] < 3) {
@@ -245,7 +273,7 @@ if (empty($_POST) || $_POST['action'] == 'back') {
 	}
 	$count = $db->rowCount();
 	?>
-	<table class="table table-striped table-hover table-condensed">
+	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
 				<th class='mobile-hidden'>#</th>
@@ -265,14 +293,14 @@ if (empty($_POST) || $_POST['action'] == 'back') {
 			echo "<tr><td class='mobile-hidden'>". $rec ."</td>";
 			echo "<td>". $dados[$i]['team_name'] ."</td>";
 			echo "<td class='mobile-hidden'>". $dados[$i]['num_athletes'] ."</td>";
-			echo "<td class='mobile-hidden'><span class='btn btn-xs team-color' style='background-color:". $dados[$i]['color'] ."'>&nbsp;&nbsp;&nbsp;</span></td>";
+			echo "<td class='mobile-hidden'><span class='btn btn-xs team-color' style='background-color: ". $dados[$i]['color'] ."'>&nbsp;&nbsp;&nbsp;</span></td>";
 			echo "<td>". $dados[$i]['category'] ."</td>";
 			echo "<td class='mobile-hidden'>". $dados[$i]['entity'] ."</td>";
 			echo "<td align='right'>";
 			echo "<form class='pull-right' method='post' action='escalacao.php'><input type='hidden' name='action' value='edit' />
-						<button class='btn btn-primary btn-xs' name='id_team' value='". $dados[$i]['id'] ."'><span class='fui-user'></span> Escalação</button></form>";
+						<button class='btn btn-info btn-xs mls' name='id_team' value='". $dados[$i]['id'] ."'><span class='fa fa-users fa-margin-right'></span>Escalação</button></form>";
 			echo "<form class='pull-right' method='post' action='equipes.php'><input type='hidden' name='action' value='edit' />
-						<button class='btn btn-primary btn-xs' name='id_team' value='". $dados[$i]['id'] ."'><span class='fui-new'></span> Editar</button></form>";
+						<button class='btn btn-info btn-xs' name='id_team' value='". $dados[$i]['id'] ."'><span class='fa fa-pencil fa-margin-right'></span>Editar</button></form>";
 			echo "</td>";		
 			echo "</tr>";
 		}
